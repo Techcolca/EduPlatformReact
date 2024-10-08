@@ -14,13 +14,25 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Ensure form is visible
+// Ensure forms are visible
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('form');
-    if (form) {
-        console.log('Registration form found');
-        form.style.display = 'block';
-    } else {
-        console.log('Registration form not found');
+    const currentPath = window.location.pathname;
+
+    if (currentPath === '/register') {
+        const registerForm = document.querySelector('form');
+        if (registerForm) {
+            console.log('Registration form found');
+            registerForm.style.display = 'block';
+        } else {
+            console.log('Registration form not found');
+        }
+    } else if (currentPath === '/login') {
+        const loginForm = document.querySelector('form');
+        if (loginForm) {
+            console.log('Login form found');
+            loginForm.style.display = 'block';
+        } else {
+            console.log('Login form not found');
+        }
     }
 });

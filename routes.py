@@ -52,6 +52,7 @@ def login():
     logging.debug(f"Login form created: {form}")
     if form.validate_on_submit():
         logging.debug("Login form submitted and validated")
+        logging.debug(f"Email entered: {form.email.data}")
         user = User.query.filter_by(email=form.email.data).first()
         logging.debug(f"User found: {user}")
         if user and check_password_hash(user.password_hash, form.password.data):
@@ -61,6 +62,10 @@ def login():
             return redirect(url_for('home'))
         else:
             logging.debug("Invalid email or password")
+            if not user:
+                logging.debug("User not found in database")
+            else:
+                logging.debug("Incorrect password")
             flash('Invalid email or password.')
     else:
         logging.debug(f"Login form errors: {form.errors}")
