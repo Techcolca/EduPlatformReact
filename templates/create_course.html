@@ -29,6 +29,61 @@
             {% endif %}
         </div>
         <div>
+            {{ form.level.label }}
+            {{ form.level() }}
+            {% if form.level.errors %}
+                <ul class="errors">
+                    {% for error in form.level.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        <div>
+            {{ form.prerequisites.label }}
+            {{ form.prerequisites() }}
+            {% if form.prerequisites.errors %}
+                <ul class="errors">
+                    {% for error in form.prerequisites.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        <div>
+            {{ form.lessons.label }}
+            {{ form.lessons() }}
+            {% if form.lessons.errors %}
+                <ul class="errors">
+                    {% for error in form.lessons.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        <div>
+            {{ form.learning_outcomes.label }}
+            {{ form.learning_outcomes() }}
+            {% if form.learning_outcomes.errors %}
+                <ul class="errors">
+                    {% for error in form.learning_outcomes.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        <div>
+            {{ form.is_template.label }}
+            {{ form.is_template() }}
+            {% if form.is_template.errors %}
+                <ul class="errors">
+                    {% for error in form.is_template.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        <div>
             <input type="submit" value="Create Course">
         </div>
     </form>
