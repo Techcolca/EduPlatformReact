@@ -2,17 +2,19 @@ import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
+from flask_wtf.csrf import CSRFProtect
 
 class Base(DeclarativeBase):
     pass
 
 db = SQLAlchemy(model_class=Base)
+csrf = CSRFProtect()
 
 # create the app
 app = Flask(__name__)
 
-# setup a secret key, required by sessions
-app.secret_key = os.environ.get("FLASK_SECRET_KEY") or "a secret key"
+# setup a secret key, required by sessions and CSRF protection
+app.config['SECRET_KEY'] = os.environ.get("FLASK_SECRET_KEY") or "a secret key"
 
 # configure the database, relative to the app instance folder
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///educational_platform.db"
@@ -21,8 +23,9 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_pre_ping": True,
 }
 
-# initialize the app with the extension
+# initialize the app with the extensions
 db.init_app(app)
+csrf.init_app(app)
 
 with app.app_context():
     # Import models and create tables
