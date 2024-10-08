@@ -8,7 +8,7 @@
         {{ form.csrf_token }}
         <div>
             {{ form.title.label }}
-            {{ form.title() }}
+            {{ form.title(class="form-control") }}
             {% if form.title.errors %}
                 <ul class="errors">
                     {% for error in form.title.errors %}
@@ -19,7 +19,7 @@
         </div>
         <div>
             {{ form.description.label }}
-            {{ form.description() }}
+            {{ form.description(class="form-control") }}
             {% if form.description.errors %}
                 <ul class="errors">
                     {% for error in form.description.errors %}
@@ -30,7 +30,7 @@
         </div>
         <div>
             {{ form.level.label }}
-            {{ form.level() }}
+            {{ form.level(class="form-control") }}
             {% if form.level.errors %}
                 <ul class="errors">
                     {% for error in form.level.errors %}
@@ -41,7 +41,7 @@
         </div>
         <div>
             {{ form.prerequisites.label }}
-            {{ form.prerequisites() }}
+            {{ form.prerequisites(class="form-control") }}
             {% if form.prerequisites.errors %}
                 <ul class="errors">
                     {% for error in form.prerequisites.errors %}
@@ -52,7 +52,7 @@
         </div>
         <div>
             {{ form.lessons.label }}
-            {{ form.lessons() }}
+            {{ form.lessons(class="form-control") }}
             {% if form.lessons.errors %}
                 <ul class="errors">
                     {% for error in form.lessons.errors %}
@@ -63,7 +63,7 @@
         </div>
         <div>
             {{ form.learning_outcomes.label }}
-            {{ form.learning_outcomes() }}
+            {{ form.learning_outcomes(class="form-control") }}
             {% if form.learning_outcomes.errors %}
                 <ul class="errors">
                     {% for error in form.learning_outcomes.errors %}
@@ -84,7 +84,7 @@
             {% endif %}
         </div>
         <div>
-            <input type="submit" value="Create Course">
+            <input type="submit" value="Create Course" class="btn btn-primary">
         </div>
     </form>
 {% endblock %}
