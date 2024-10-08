@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Approve Course - Educational Platform{% endblock %}
+
+{% block content %}
+    <h1>Approve Course: {{ course.title }}</h1>
+    <form method="POST" action="{{ url_for('approve_course', course_id=course.id) }}">
+        {{ form.csrf_token }}
+        <div>
+            {{ form.is_approved.label }}
+            {{ form.is_approved }}
+        </div>
+        <div>
+            <input type="submit" value="Update Approval Status">
+        </div>
+    </form>
+{% endblock %}
