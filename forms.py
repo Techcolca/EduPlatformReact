@@ -8,3 +8,7 @@ class TeacherRegistrationForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired(), Length(min=6)])
     areas_of_expertise = TextAreaField('Areas of Expertise', validators=[DataRequired()])
     preferred_subjects = TextAreaField('Preferred Subjects', validators=[DataRequired()])
+
+class LoginForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    password = PasswordField('Password', validators=[DataRequired()])
