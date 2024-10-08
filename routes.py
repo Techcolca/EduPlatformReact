@@ -4,6 +4,9 @@ from flask_login import login_user, login_required, logout_user
 from app import app, db
 from models import User
 from forms import TeacherRegistrationForm, LoginForm
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 @app.route('/')
 def home():
@@ -15,11 +18,11 @@ def about():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    print("Register route accessed")
+    logging.debug("Register route accessed")
     form = TeacherRegistrationForm()
-    print(f"Form created: {form}")
+    logging.debug(f"Form created: {form}")
     if form.validate_on_submit():
-        print("Form submitted and validated")
+        logging.debug("Form submitted and validated")
         existing_user = User.query.filter_by(email=form.email.data).first()
         if existing_user:
             flash('Email already registered. Please use a different email.')
@@ -38,21 +41,29 @@ def register():
         flash('Registration successful! Please log in.')
         return redirect(url_for('login'))
     else:
-        print(f"Form errors: {form.errors}")
-    print("Rendering register template")
+        logging.debug(f"Form errors: {form.errors}")
+    logging.debug("Rendering register template")
     return render_template('register.html', form=form)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    logging.debug("Login route accessed")
     form = LoginForm()
+    logging.debug(f"Login form created: {form}")
     if form.validate_on_submit():
+        logging.debug("Login form submitted and validated")
         user = User.query.filter_by(email=form.email.data).first()
+        logging.debug(f"User found: {user}")
         if user and check_password_hash(user.password_hash, form.password.data):
+            logging.debug("Password check successful")
             login_user(user)
             flash('Logged in successfully.')
             return redirect(url_for('home'))
         else:
+            logging.debug("Invalid email or password")
             flash('Invalid email or password.')
+    else:
+        logging.debug(f"Login form errors: {form.errors}")
     return render_template('login.html', form=form)
 
 @app.route('/logout')
