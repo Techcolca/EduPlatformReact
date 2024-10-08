@@ -39,3 +39,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+// Comment out any code that might affect form visibility
+// No such code found in this file

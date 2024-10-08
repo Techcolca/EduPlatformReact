@@ -66,3 +66,21 @@
         </div>
     </form>
 {% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM fully loaded and parsed');
+    const form = document.querySelector('form');
+    if (form) {
+        console.log('Registration form found');
+        form.style.display = 'block';
+        form.addEventListener('submit', function(e) {
+            console.log('Form submission attempted');
+        });
+    } else {
+        console.log('Registration form not found');
+    }
+});
+</script>
+{% endblock %}

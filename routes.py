@@ -14,9 +14,11 @@ def about():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    print("Register route accessed")  # Debug print
+    print("Register route accessed")
     form = TeacherRegistrationForm()
+    print(f"Form created: {form}")
     if form.validate_on_submit():
+        print("Form submitted and validated")
         existing_user = User.query.filter_by(email=form.email.data).first()
         if existing_user:
             flash('Email already registered. Please use a different email.')
@@ -34,6 +36,7 @@ def register():
 
         flash('Registration successful! Please log in.')
         return redirect(url_for('home'))
-
-    print("Rendering register template")  # Debug print
+    else:
+        print(f"Form errors: {form.errors}")
+    print("Rendering register template")
     return render_template('register.html', form=form)
