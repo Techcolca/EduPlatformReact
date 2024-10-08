@@ -1,9 +1,9 @@
 from flask import render_template, request, redirect, url_for, flash
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import login_user, login_required, logout_user
+from flask_login import login_user, login_required, logout_user, current_user
 from app import app, db
-from models import User
-from forms import TeacherRegistrationForm, LoginForm
+from models import User, Course
+from forms import TeacherRegistrationForm, LoginForm, CourseCreationForm
 import logging
 
 @app.route('/')
@@ -80,3 +80,24 @@ def logout():
     logout_user()
     flash('Logged out successfully.')
     return redirect(url_for('home'))
+
+@app.route('/create_course', methods=['GET', 'POST'])
+@login_required
+def create_course():
+    form = CourseCreationForm()
+    if form.validate_on_submit():
+        new_course = Course(
+            title=form.title.data,
+            description=form.description.data,
+            instructor_id=current_user.id
+        )
+        db.session.add(new_course)
+        try:
+            db.session.commit()
+            flash('Course created successfully!')
+            return redirect(url_for('home'))
+        except Exception as e:
+            db.session.rollback()
+            logging.error(f"Error creating new course: {str(e)}")
+            flash('An error occurred. Please try again.')
+    return render_template('create_course.html', form=form)

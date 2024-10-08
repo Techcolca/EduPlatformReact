@@ -16,10 +16,11 @@
                 <ul>
                     <li><a href="{{ url_for('home') }}">Home</a></li>
                     <li><a href="{{ url_for('about') }}">About</a></li>
-                    <li><a href="{{ url_for('register') }}">Teacher Registration</a></li>
                     {% if current_user.is_authenticated %}
+                        <li><a href="{{ url_for('create_course') }}">Create Course</a></li>
                         <li><a href="{{ url_for('logout') }}">Logout</a></li>
                     {% else %}
+                        <li><a href="{{ url_for('register') }}">Teacher Registration</a></li>
                         <li><a href="{{ url_for('login') }}">Login</a></li>
                     {% endif %}
                 </ul>

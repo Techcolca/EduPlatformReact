@@ -12,3 +12,7 @@ class TeacherRegistrationForm(FlaskForm):
 class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
+
+class CourseCreationForm(FlaskForm):
+    title = StringField('Course Title', validators=[DataRequired(), Length(max=120)])
+    description = TextAreaField('Course Description', validators=[DataRequired()])
