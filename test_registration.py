@@ -18,21 +18,29 @@ class TestTeacherRegistration(unittest.TestCase):
             db.session.remove()
             db.drop_all()
 
-    def test_form_validation(self):
+    def test_form_validation_edge_cases(self):
         with app.app_context():
+            # Test very long inputs
             form = TeacherRegistrationForm(
-                name='',
-                email='invalid_email',
-                password='short',
-                areas_of_expertise='',
-                preferred_subjects=''
+                name='A' * 101,
+                email='a' * 100 + '@example.com',
+                password='A' * 101,
+                areas_of_expertise='A' * 1001,
+                preferred_subjects='A' * 1001
             )
             self.assertFalse(form.validate())
             self.assertIn('name', form.errors)
-            self.assertIn('email', form.errors)
             self.assertIn('password', form.errors)
-            self.assertIn('areas_of_expertise', form.errors)
-            self.assertIn('preferred_subjects', form.errors)
+
+            # Test special characters
+            form = TeacherRegistrationForm(
+                name='John @#$% Doe',
+                email='john@example.com',
+                password='secure_password',
+                areas_of_expertise='Math, Science!',
+                preferred_subjects='Algebra, Physics!'
+            )
+            self.assertTrue(form.validate())
 
     def test_successful_registration(self):
         response = self.client.post('/register', data={
@@ -46,6 +54,9 @@ class TestTeacherRegistration(unittest.TestCase):
         with app.app_context():
             user = User.query.filter_by(email='john@example.com').first()
             self.assertIsNotNone(user)
+            self.assertEqual(user.username, 'John Doe')
+            self.assertEqual(user.areas_of_expertise, 'Math, Science')
+            self.assertEqual(user.preferred_subjects, 'Algebra, Physics')
 
     def test_existing_email_registration(self):
         # First registration
@@ -79,6 +90,50 @@ class TestTeacherRegistration(unittest.TestCase):
             self.assertIsNotNone(user)
             self.assertTrue(check_password_hash(user.password_hash, 'secure_password'))
             self.assertFalse(check_password_hash(user.password_hash, 'wrong_password'))
+
+    def test_invalid_input_handling(self):
+        response = self.client.post('/register', data={
+            'name': '',
+            'email': 'invalid_email',
+            'password': 'short',
+            'areas_of_expertise': '',
+            'preferred_subjects': ''
+        }, follow_redirects=True)
+        self.assertIn(b'This field is required', response.data)
+        self.assertIn(b'Invalid email address', response.data)
+        self.assertIn(b'Field must be at least 6 characters long', response.data)
+
+    def test_flash_messages(self):
+        # Test successful registration flash message
+        response = self.client.post('/register', data={
+            'name': 'John Doe',
+            'email': 'john@example.com',
+            'password': 'secure_password',
+            'areas_of_expertise': 'Math, Science',
+            'preferred_subjects': 'Algebra, Physics'
+        }, follow_redirects=True)
+        self.assertIn(b'Registration successful!', response.data)
+
+        # Test unsuccessful registration flash message
+        response = self.client.post('/register', data={
+            'name': 'John Doe',
+            'email': 'john@example.com',
+            'password': 'secure_password',
+            'areas_of_expertise': 'Math, Science',
+            'preferred_subjects': 'Algebra, Physics'
+        }, follow_redirects=True)
+        self.assertIn(b'Email already registered', response.data)
+
+    def test_redirect_after_registration(self):
+        response = self.client.post('/register', data={
+            'name': 'John Doe',
+            'email': 'john@example.com',
+            'password': 'secure_password',
+            'areas_of_expertise': 'Math, Science',
+            'preferred_subjects': 'Algebra, Physics'
+        }, follow_redirects=False)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location, '/')
 
 if __name__ == '__main__':
     unittest.main()
