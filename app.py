@@ -30,7 +30,8 @@ csrf.init_app(app)
 with app.app_context():
     # Import models and create tables
     import models
-    db.create_all()
+    db.drop_all()  # Drop all existing tables
+    db.create_all()  # Create tables with the updated schema
 
 # Import and register routes
 from routes import *
