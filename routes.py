@@ -6,8 +6,6 @@ from models import User
 from forms import TeacherRegistrationForm, LoginForm
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
-
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -20,9 +18,10 @@ def about():
 def register():
     logging.debug("Register route accessed")
     form = TeacherRegistrationForm()
-    logging.debug(f"Form created: {form}")
+    logging.debug(f"Registration form created: {form}")
     if form.validate_on_submit():
-        logging.debug("Form submitted and validated")
+        logging.debug("Registration form submitted and validated")
+        logging.debug(f"Form data: {form.data}")
         existing_user = User.query.filter_by(email=form.email.data).first()
         if existing_user:
             flash('Email already registered. Please use a different email.')
@@ -36,13 +35,17 @@ def register():
             preferred_subjects=form.preferred_subjects.data
         )
         db.session.add(new_user)
-        db.session.commit()
-
-        flash('Registration successful! Please log in.')
-        return redirect(url_for('login'))
+        try:
+            db.session.commit()
+            logging.debug(f"New user created: {new_user}")
+            flash('Registration successful! Please log in.')
+            return redirect(url_for('login'))
+        except Exception as e:
+            db.session.rollback()
+            logging.error(f"Error creating new user: {str(e)}")
+            flash('An error occurred. Please try again.')
     else:
         logging.debug(f"Form errors: {form.errors}")
-    logging.debug("Rendering register template")
     return render_template('register.html', form=form)
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -52,9 +55,9 @@ def login():
     logging.debug(f"Login form created: {form}")
     if form.validate_on_submit():
         logging.debug("Login form submitted and validated")
-        logging.debug(f"Email entered: {form.email.data}")
+        logging.debug(f"Form data: {form.data}")
         user = User.query.filter_by(email=form.email.data).first()
-        logging.debug(f"User found: {user}")
+        logging.debug(f"User query result: {user}")
         if user and check_password_hash(user.password_hash, form.password.data):
             logging.debug("Password check successful")
             login_user(user)

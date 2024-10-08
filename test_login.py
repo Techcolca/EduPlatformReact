@@ -1,7 +1,7 @@
 import unittest
 from app import app, db
 from models import User
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 class TestLogin(unittest.TestCase):
     def setUp(self):
@@ -11,7 +11,13 @@ class TestLogin(unittest.TestCase):
         self.client = app.test_client()
         with app.app_context():
             db.create_all()
-            test_user = User(username='testuser', email='test@example.com', password_hash=generate_password_hash('password123'))
+            test_user = User(
+                username='testuser',
+                email='test@example.com',
+                password_hash=generate_password_hash('password123'),
+                areas_of_expertise='Testing',
+                preferred_subjects='Unit Tests'
+            )
             db.session.add(test_user)
             db.session.commit()
 
@@ -56,6 +62,15 @@ class TestLogin(unittest.TestCase):
         # Then, log out
         response = self.client.get('/logout', follow_redirects=True)
         self.assertIn(b'Logged out successfully', response.data)
+
+    def test_user_creation(self):
+        with app.app_context():
+            user = User.query.filter_by(email='test@example.com').first()
+            self.assertIsNotNone(user)
+            self.assertEqual(user.username, 'testuser')
+            self.assertTrue(check_password_hash(user.password_hash, 'password123'))
+            self.assertEqual(user.areas_of_expertise, 'Testing')
+            self.assertEqual(user.preferred_subjects, 'Unit Tests')
 
 if __name__ == '__main__':
     unittest.main()
