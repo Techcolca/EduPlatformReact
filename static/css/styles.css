@@ -51,3 +51,38 @@ form input[type="submit"]:hover {
     padding: 0;
     margin: 5px 0;
 }
+
+/* Navigation styles */
+nav ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+nav ul li {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #333;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+nav ul li a:hover {
+    background-color: #3498db;
+    color: white;
+}
+
+/* Ensure "Create Course" button is styled consistently */
+nav ul li a[href="{{ url_for('create_course') }}"] {
+    background-color: #2ecc71;
+    color: white;
+}
+
+nav ul li a[href="{{ url_for('create_course') }}"]:hover {
+    background-color: #27ae60;
+}
