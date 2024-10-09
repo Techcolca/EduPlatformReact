@@ -13,23 +13,27 @@ def recreate_db():
         db.create_all()
         
         # Create admin user
-        admin = User(
-            username="admin",
-            email="admin@example.com",
-            password_hash=generate_password_hash("admin_password"),
-            is_admin=True
-        )
-        db.session.add(admin)
+        admin_email = "admin@example.com"
+        if not User.query.filter_by(email=admin_email).first():
+            admin = User(
+                username="admin",
+                email=admin_email,
+                password_hash=generate_password_hash("admin_password"),
+                is_admin=True
+            )
+            db.session.add(admin)
         
         # Create test user
-        test_user = User(
-            username="Test User",
-            email="test@example.com",
-            password_hash=generate_password_hash("password123"),
-            areas_of_expertise="Testing",
-            preferred_subjects="Unit Tests"
-        )
-        db.session.add(test_user)
+        test_email = "test@example.com"
+        if not User.query.filter_by(email=test_email).first():
+            test_user = User(
+                username="Test User",
+                email=test_email,
+                password_hash=generate_password_hash("password123"),
+                areas_of_expertise="Testing",
+                preferred_subjects="Unit Tests"
+            )
+            db.session.add(test_user)
         
         db.session.commit()
         print("Database recreated and seeded with initial data.")
@@ -38,10 +42,12 @@ def recreate_db():
 def check_schema():
     with app.app_context():
         inspector = inspect(db.engine)
-        columns = inspector.get_columns('user')
-        print("User table schema:")
-        for column in columns:
-            print(f"- {column['name']}: {column['type']}")
+        tables = inspector.get_table_names()
+        for table in tables:
+            columns = inspector.get_columns(table)
+            print(f"{table} table schema:")
+            for column in columns:
+                print(f"- {column['name']}: {column['type']}")
 
 if __name__ == "__main__":
     cli()
