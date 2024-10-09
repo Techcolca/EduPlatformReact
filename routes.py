@@ -82,6 +82,10 @@ def create_course():
             db.session.add(new_course)
             db.session.commit()
             logging.debug(f"Course created: {new_course}")
+            logging.debug(f"Course ID: {new_course.id}")
+            logging.debug(f"Course title: {new_course.title}")
+            logging.debug(f"Course instructor: {new_course.instructor_id}")
+            logging.debug(f"Course approval status: {new_course.is_approved}")
             flash('Course created successfully!', 'success')
             return redirect(url_for('course_details', course_id=new_course.id))
         except Exception as e:
@@ -94,6 +98,8 @@ def create_course():
 def list_courses():
     courses = Course.query.filter_by(is_approved=True).all()
     logging.debug(f"Course listing: Retrieved {len(courses)} approved courses")
+    for course in courses:
+        logging.debug(f"Course ID: {course.id}, Title: {course.title}, Approved: {course.is_approved}")
     return render_template('list_courses.html', courses=courses)
 
 @app.route('/course/<int:course_id>')
