@@ -130,7 +130,7 @@ agentRequireRestartOnSave = false
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "flask db migrate -m 'Add is_admin column to user table'"
+args = "flask db migrate -m 'Update User and Course models'"
 
 [[workflows.workflow]]
 name = "Apply Migration"
