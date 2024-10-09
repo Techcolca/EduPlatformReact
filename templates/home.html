@@ -5,4 +5,18 @@
 {% block content %}
     <h1>Welcome to our Educational Platform</h1>
     <p>Start learning today!</p>
+
+    <h2>Available Courses</h2>
+    {% if courses %}
+        <ul>
+        {% for course in courses %}
+            <li>
+                <a href="{{ url_for('course_details', course_id=course.id) }}">{{ course.title }}</a>
+                - {{ course.level }}
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No courses available at the moment.</p>
+    {% endif %}
 {% endblock %}

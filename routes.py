@@ -9,6 +9,7 @@ import logging
 @app.route('/')
 def home():
     courses = Course.query.filter_by(is_approved=True).all()
+    logging.debug(f"Home page: Retrieved {len(courses)} approved courses")
     return render_template('home.html', courses=courses)
 
 @app.route('/about')
@@ -80,6 +81,7 @@ def create_course():
             )
             db.session.add(new_course)
             db.session.commit()
+            logging.debug(f"Course created: {new_course}")
             flash('Course created successfully!', 'success')
             return redirect(url_for('course_details', course_id=new_course.id))
         except Exception as e:
@@ -91,11 +93,13 @@ def create_course():
 @app.route('/courses')
 def list_courses():
     courses = Course.query.filter_by(is_approved=True).all()
+    logging.debug(f"Course listing: Retrieved {len(courses)} approved courses")
     return render_template('list_courses.html', courses=courses)
 
 @app.route('/course/<int:course_id>')
 def course_details(course_id):
     course = Course.query.get_or_404(course_id)
+    logging.debug(f"Course details: Retrieved course {course}")
     return render_template('course_details.html', course=course)
 
 @app.route('/course/<int:course_id>/edit', methods=['GET', 'POST'])
@@ -109,6 +113,7 @@ def edit_course(course_id):
         form.populate_obj(course)
         try:
             db.session.commit()
+            logging.debug(f"Course updated: {course}")
             flash('Course updated successfully!')
             return redirect(url_for('course_details', course_id=course.id))
         except Exception as e:
@@ -126,6 +131,7 @@ def delete_course(course_id):
     try:
         db.session.delete(course)
         db.session.commit()
+        logging.debug(f"Course deleted: {course}")
         flash('Course deleted successfully!')
     except Exception as e:
         db.session.rollback()
@@ -144,6 +150,7 @@ def approve_course(course_id):
         course.is_approved = form.is_approved.data
         try:
             db.session.commit()
+            logging.debug(f"Course approval status updated: {course}")
             flash('Course approval status updated successfully!')
             return redirect(url_for('course_details', course_id=course.id))
         except Exception as e:
@@ -156,6 +163,7 @@ def approve_course(course_id):
 @login_required
 def list_templates():
     templates = Course.query.filter_by(is_template=True, is_approved=True).all()
+    logging.debug(f"Template listing: Retrieved {len(templates)} approved templates")
     return render_template('list_templates.html', templates=templates)
 
 @app.route('/create_from_template/<int:template_id>', methods=['GET', 'POST'])
@@ -177,6 +185,7 @@ def create_from_template(template_id):
         db.session.add(new_course)
         try:
             db.session.commit()
+            logging.debug(f"Course created from template: {new_course}")
             flash('Course created from template successfully!')
             return redirect(url_for('course_details', course_id=new_course.id))
         except Exception as e:
