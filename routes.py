@@ -8,8 +8,8 @@ import logging
 
 @app.route('/')
 def home():
-    courses = Course.query.filter_by(is_approved=True).all()
-    logging.debug(f"Home page: Retrieved {len(courses)} approved courses")
+    courses = Course.query.all()
+    logging.debug(f"Home page: Retrieved {len(courses)} courses")
     return render_template('home.html', courses=courses)
 
 @app.route('/about')
@@ -96,8 +96,8 @@ def create_course():
 
 @app.route('/courses')
 def list_courses():
-    courses = Course.query.filter_by(is_approved=True).all()
-    logging.debug(f"Course listing: Retrieved {len(courses)} approved courses")
+    courses = Course.query.all()
+    logging.debug(f"Course listing: Retrieved {len(courses)} courses")
     for course in courses:
         logging.debug(f"Course ID: {course.id}, Title: {course.title}, Approved: {course.is_approved}")
     return render_template('list_courses.html', courses=courses)

@@ -13,6 +13,9 @@
             <li>
                 <a href="{{ url_for('course_details', course_id=course.id) }}">{{ course.title }}</a>
                 - {{ course.level }}
+                {% if not course.is_approved %}
+                    (Pending Approval)
+                {% endif %}
             </li>
         {% endfor %}
         </ul>
