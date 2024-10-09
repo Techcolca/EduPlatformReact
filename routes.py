@@ -67,25 +67,25 @@ def logout():
 def create_course():
     form = CourseCreationForm()
     if form.validate_on_submit():
-        new_course = Course(
-            title=form.title.data,
-            description=form.description.data,
-            level=form.level.data,
-            prerequisites=form.prerequisites.data,
-            lessons=form.lessons.data,
-            learning_outcomes=form.learning_outcomes.data,
-            is_template=form.is_template.data,
-            instructor_id=current_user.id
-        )
-        db.session.add(new_course)
         try:
+            new_course = Course(
+                title=form.title.data,
+                description=form.description.data,
+                level=form.level.data,
+                prerequisites=form.prerequisites.data,
+                lessons=form.lessons.data,
+                learning_outcomes=form.learning_outcomes.data,
+                is_template=form.is_template.data,
+                instructor_id=current_user.id
+            )
+            db.session.add(new_course)
             db.session.commit()
-            flash('Course created successfully!')
-            return redirect(url_for('home'))
+            flash('Course created successfully!', 'success')
+            return redirect(url_for('course_details', course_id=new_course.id))
         except Exception as e:
             db.session.rollback()
             logging.error(f"Error creating new course: {str(e)}")
-            flash('An error occurred. Please try again.')
+            flash('An error occurred while creating the course. Please try again.', 'error')
     return render_template('create_course.html', form=form)
 
 @app.route('/courses')
@@ -142,7 +142,6 @@ def approve_course(course_id):
     form = CourseApprovalForm(obj=course)
     if form.validate_on_submit():
         course.is_approved = form.is_approved.data
-        course.admin_id = current_user.id if form.is_approved.data else None
         try:
             db.session.commit()
             flash('Course approval status updated successfully!')

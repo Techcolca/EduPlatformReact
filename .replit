@@ -19,6 +19,38 @@ args = "Start Flask App"
 task = "workflow.run"
 args = "Database Verification"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Run Course Creation Tests"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Create and Apply Migrations"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Check Migration File"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Initialize Migrations"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Create Migration"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Apply Migration"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Check Database Schema"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Recreate Database"
+
 [[workflows.workflow]]
 name = "Start Flask App"
 author = "agent"
@@ -44,6 +76,94 @@ args = """
 sqlite3 instance/educational_platform.db '.tables' && echo '
 User table schema:' && sqlite3 instance/educational_platform.db '.schema user' && echo '
 Course table schema:' && sqlite3 instance/educational_platform.db '.schema course'"""
+
+[[workflows.workflow]]
+name = "Run Course Creation Tests"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python -m unittest test_course_creation.py"
+
+[[workflows.workflow]]
+name = "Create and Apply Migrations"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "flask db migrate -m 'Update User and Course models' && flask db upgrade"
+
+[[workflows.workflow]]
+name = "Check Migration File"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "ls -t migrations/versions/*.py | head -n 1 | xargs cat"
+
+[[workflows.workflow]]
+name = "Initialize Migrations"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "flask db init"
+
+[[workflows.workflow]]
+name = "Create Migration"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "flask db migrate -m 'Add is_admin column to user table'"
+
+[[workflows.workflow]]
+name = "Apply Migration"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "flask db upgrade"
+
+[[workflows.workflow]]
+name = "Check Database Schema"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python manage.py check_schema"
+
+[[workflows.workflow]]
+name = "Recreate Database"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python manage.py recreate_db"
 
 [deployment]
 run = ["sh", "-c", "python main.py"]
