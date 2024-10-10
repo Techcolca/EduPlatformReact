@@ -130,7 +130,7 @@ agentRequireRestartOnSave = false
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "flask db migrate -m 'Update Course model'"
+args = "flask db migrate -m 'Create Lessons table and establish relationship with Courses'"
 
 [[workflows.workflow]]
 name = "Apply Migration"

@@ -6,21 +6,117 @@
     <h1>Edit Course</h1>
     <form method="POST" action="{{ url_for('edit_course', course_id=course.id) }}">
         {{ form.csrf_token }}
-        {% for field in form if field.name != 'csrf_token' %}
-            <div>
-                {{ field.label }}
-                {{ field }}
-                {% if field.errors %}
-                    <ul class="errors">
-                        {% for error in field.errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            </div>
-        {% endfor %}
         <div>
-            <input type="submit" value="Update Course">
+            {{ form.title.label }}
+            {{ form.title(class="form-control") }}
+            {% if form.title.errors %}
+                <ul class="errors">
+                    {% for error in form.title.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        <div>
+            {{ form.description.label }}
+            {{ form.description(class="form-control") }}
+            {% if form.description.errors %}
+                <ul class="errors">
+                    {% for error in form.description.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        <div>
+            {{ form.level.label }}
+            {{ form.level(class="form-control") }}
+            {% if form.level.errors %}
+                <ul class="errors">
+                    {% for error in form.level.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        <div>
+            {{ form.prerequisites.label }}
+            {{ form.prerequisites(class="form-control") }}
+            {% if form.prerequisites.errors %}
+                <ul class="errors">
+                    {% for error in form.prerequisites.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        <div>
+            {{ form.learning_outcomes.label }}
+            {{ form.learning_outcomes(class="form-control") }}
+            {% if form.learning_outcomes.errors %}
+                <ul class="errors">
+                    {% for error in form.learning_outcomes.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        <div>
+            {{ form.is_template.label }}
+            {{ form.is_template() }}
+            {% if form.is_template.errors %}
+                <ul class="errors">
+                    {% for error in form.is_template.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        <h2>Lessons</h2>
+        <div id="lessons">
+            {% for lesson_form in form.lessons %}
+                <div class="lesson-form">
+                    <h3>Lesson {{ loop.index }}</h3>
+                    {% if lesson_form.id.data %}
+                        <input type="hidden" name="lessons-{{ loop.index0 }}-id" value="{{ lesson_form.id.data }}">
+                    {% endif %}
+                    {{ lesson_form.title.label }}
+                    {{ lesson_form.title(class="form-control") }}
+                    {{ lesson_form.content.label }}
+                    {{ lesson_form.content(class="form-control") }}
+                    {{ lesson_form.order.label }}
+                    {{ lesson_form.order(class="form-control") }}
+                </div>
+            {% endfor %}
+        </div>
+        <button type="button" id="add-lesson">Add Lesson</button>
+        <div>
+            <input type="submit" value="Update Course" class="btn btn-primary">
         </div>
     </form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const addLessonButton = document.getElementById('add-lesson');
+    const lessonsContainer = document.getElementById('lessons');
+
+    addLessonButton.addEventListener('click', function() {
+        const lessonCount = lessonsContainer.children.length;
+        const newLesson = document.createElement('div');
+        newLesson.className = 'lesson-form';
+        newLesson.innerHTML = `
+            <h3>Lesson ${lessonCount + 1}</h3>
+            <label for="lessons-${lessonCount}-title">Lesson Title</label>
+            <input class="form-control" id="lessons-${lessonCount}-title" name="lessons-${lessonCount}-title" required type="text" value="">
+            <label for="lessons-${lessonCount}-content">Lesson Content</label>
+            <textarea class="form-control" id="lessons-${lessonCount}-content" name="lessons-${lessonCount}-content" required></textarea>
+            <label for="lessons-${lessonCount}-order">Lesson Order</label>
+            <input class="form-control" id="lessons-${lessonCount}-order" name="lessons-${lessonCount}-order" required type="text" value="${lessonCount + 1}">
+        `;
+        lessonsContainer.appendChild(newLesson);
+    });
+});
+</script>
 {% endblock %}

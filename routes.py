@@ -2,7 +2,7 @@ from flask import render_template, request, redirect, url_for, flash, abort
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 from app import app, db
-from models import User, Course
+from models import User, Course, Lesson
 from forms import TeacherRegistrationForm, LoginForm, CourseCreationForm, CourseUpdateForm, CourseApprovalForm
 import logging
 
@@ -74,18 +74,24 @@ def create_course():
                 description=form.description.data,
                 level=form.level.data,
                 prerequisites=form.prerequisites.data,
-                lessons=form.lessons.data,
                 learning_outcomes=form.learning_outcomes.data,
                 is_template=form.is_template.data,
                 instructor_id=current_user.id
             )
             db.session.add(new_course)
+            db.session.flush()  # This assigns an id to new_course
+
+            for lesson_form in form.lessons.data:
+                new_lesson = Lesson(
+                    title=lesson_form['title'],
+                    content=lesson_form['content'],
+                    order=int(lesson_form['order']),
+                    course_id=new_course.id
+                )
+                db.session.add(new_lesson)
+
             db.session.commit()
             logging.debug(f"Course created: {new_course}")
-            logging.debug(f"Course ID: {new_course.id}")
-            logging.debug(f"Course title: {new_course.title}")
-            logging.debug(f"Course instructor: {new_course.instructor_id}")
-            logging.debug(f"Course approval status: {new_course.is_approved}")
             flash('Course created successfully!', 'success')
             return redirect(url_for('course_details', course_id=new_course.id))
         except Exception as e:
@@ -118,6 +124,29 @@ def edit_course(course_id):
     if form.validate_on_submit():
         form.populate_obj(course)
         try:
+            # Update existing lessons and add new ones
+            existing_lesson_ids = [lesson.id for lesson in course.lessons]
+            for lesson_form in form.lessons.data:
+                if 'id' in lesson_form and lesson_form['id']:
+                    lesson = Lesson.query.get(lesson_form['id'])
+                    lesson.title = lesson_form['title']
+                    lesson.content = lesson_form['content']
+                    lesson.order = int(lesson_form['order'])
+                    existing_lesson_ids.remove(lesson.id)
+                else:
+                    new_lesson = Lesson(
+                        title=lesson_form['title'],
+                        content=lesson_form['content'],
+                        order=int(lesson_form['order']),
+                        course_id=course.id
+                    )
+                    db.session.add(new_lesson)
+            
+            # Remove lessons that were deleted in the form
+            for lesson_id in existing_lesson_ids:
+                lesson_to_delete = Lesson.query.get(lesson_id)
+                db.session.delete(lesson_to_delete)
+
             db.session.commit()
             logging.debug(f"Course updated: {course}")
             flash('Course updated successfully!')
@@ -183,13 +212,23 @@ def create_from_template(template_id):
             description=form.description.data,
             level=form.level.data,
             prerequisites=form.prerequisites.data,
-            lessons=form.lessons.data,
             learning_outcomes=form.learning_outcomes.data,
             is_template=False,
             instructor_id=current_user.id
         )
         db.session.add(new_course)
         try:
+            db.session.flush()  # This assigns an id to new_course
+
+            for lesson_form in form.lessons.data:
+                new_lesson = Lesson(
+                    title=lesson_form['title'],
+                    content=lesson_form['content'],
+                    order=int(lesson_form['order']),
+                    course_id=new_course.id
+                )
+                db.session.add(new_lesson)
+
             db.session.commit()
             logging.debug(f"Course created from template: {new_course}")
             flash('Course created from template successfully!')

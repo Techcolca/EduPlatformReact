@@ -19,12 +19,23 @@ class Course(db.Model):
     description = db.Column(db.Text, nullable=False)
     level = db.Column(db.String(50), nullable=False)
     prerequisites = db.Column(db.Text, nullable=True)
-    lessons = db.Column(db.Text, nullable=False)
     learning_outcomes = db.Column(db.Text, nullable=False)
     is_template = db.Column(db.Boolean, default=False, nullable=False)
     is_approved = db.Column(db.Boolean, default=False, nullable=False)
     instructor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     instructor = db.relationship('User', backref=db.backref('courses', lazy=True))
+    lessons = db.relationship('Lesson', back_populates='course', cascade='all, delete-orphan')
 
     def __repr__(self):
         return f'<Course {self.title}>'
+
+class Lesson(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(120), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    order = db.Column(db.Integer, nullable=False)
+    course_id = db.Column(db.Integer, db.ForeignKey('course.id'), nullable=False)
+    course = db.relationship('Course', back_populates='lessons')
+
+    def __repr__(self):
+        return f'<Lesson {self.title}>'
