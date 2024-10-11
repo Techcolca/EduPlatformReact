@@ -72,17 +72,46 @@
                 </ul>
             {% endif %}
         </div>
-        <div>
-            {{ form.lessons.label }}
-            {{ form.lessons(class="form-control dropdown") }}
-            {% if form.lessons.errors %}
-                <ul class="errors">
-                    {% for error in form.lessons.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        </div>
+        <h3>Lessons</h3>
+        {% for lesson_form in form.lessons %}
+            <div class="lesson-form">
+                <h4>Lesson {{ loop.index }}</h4>
+                {{ lesson_form.hidden_tag() }}
+                <div>
+                    {{ lesson_form.title.label }}
+                    {{ lesson_form.title(class="form-control") }}
+                    {% if lesson_form.title.errors %}
+                        <ul class="errors">
+                            {% for error in lesson_form.title.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                <div>
+                    {{ lesson_form.content.label }}
+                    {{ lesson_form.content(class="form-control") }}
+                    {% if lesson_form.content.errors %}
+                        <ul class="errors">
+                            {% for error in lesson_form.content.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                <div>
+                    {{ lesson_form.order.label }}
+                    {{ lesson_form.order(class="form-control") }}
+                    {% if lesson_form.order.errors %}
+                        <ul class="errors">
+                            {% for error in lesson_form.order.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
         <button type="submit" value="Update Course" class="btn btn-primary">Update Course</button>
     </form>
 {% endblock %}
