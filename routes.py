@@ -81,11 +81,11 @@ def create_course():
             db.session.add(new_course)
             db.session.flush()
 
-            for lesson_form in form.lessons.data:
+            for lesson_form in form.lessons:
                 new_lesson = Lesson(
-                    title=lesson_form['title'],
-                    content=lesson_form['content'],
-                    order=int(lesson_form['order']),
+                    title=lesson_form.title.data,
+                    content=lesson_form.content.data,
+                    order=lesson_form.order.data,
                     course_id=new_course.id
                 )
                 db.session.add(new_lesson)
