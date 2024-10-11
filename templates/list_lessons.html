@@ -4,7 +4,16 @@
 
 {% block content %}
     <h1>All Lessons</h1>
+    {% if current_user.is_authenticated %}
+        <p>Debug: User is authenticated (ID: {{ current_user.id }})</p>
+        {% if current_user.is_admin %}
+            <p>Debug: User is admin</p>
+        {% endif %}
+    {% else %}
+        <p>Debug: User is not authenticated</p>
+    {% endif %}
     {% if lessons %}
+        <p>Debug: Number of lessons: {{ lessons|length }}</p>
         <ul>
         {% for lesson in lessons %}
             <li>
@@ -23,5 +32,17 @@
         </ul>
     {% else %}
         <p>No lessons available at the moment.</p>
+    {% endif %}
+    {% if current_user.is_authenticated %}
+        <h2>Create a New Lesson</h2>
+        <form method="GET" action="{{ url_for('create_lesson', course_id=0) }}">
+            <label for="course_select">Select a course:</label>
+            <select name="course_id" id="course_select">
+                {% for course in courses.values() %}
+                    <option value="{{ course.id }}">{{ course.title }}</option>
+                {% endfor %}
+            </select>
+            <input type="submit" value="Create New Lesson" class="btn btn-primary">
+        </form>
     {% endif %}
 {% endblock %}

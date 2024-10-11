@@ -79,7 +79,7 @@ def create_course():
                 instructor_id=current_user.id
             )
             db.session.add(new_course)
-            db.session.flush()  # This assigns an id to new_course
+            db.session.flush()
 
             for lesson_form in form.lessons.data:
                 new_lesson = Lesson(
@@ -124,7 +124,6 @@ def edit_course(course_id):
     if form.validate_on_submit():
         form.populate_obj(course)
         try:
-            # Update existing lessons and add new ones
             existing_lesson_ids = [lesson.id for lesson in course.lessons]
             for lesson_form in form.lessons.data:
                 if 'id' in lesson_form and lesson_form['id']:
@@ -142,7 +141,6 @@ def edit_course(course_id):
                     )
                     db.session.add(new_lesson)
             
-            # Remove lessons that were deleted in the form
             for lesson_id in existing_lesson_ids:
                 lesson_to_delete = Lesson.query.get(lesson_id)
                 db.session.delete(lesson_to_delete)
@@ -218,7 +216,7 @@ def create_from_template(template_id):
         )
         db.session.add(new_course)
         try:
-            db.session.flush()  # This assigns an id to new_course
+            db.session.flush()
 
             for lesson_form in form.lessons.data:
                 new_lesson = Lesson(
@@ -318,4 +316,13 @@ def list_lessons():
     lessons = Lesson.query.order_by(Lesson.course_id, Lesson.order).all()
     courses = Course.query.all()
     course_dict = {course.id: course for course in courses}
+    
+    logging.debug(f"Number of lessons retrieved: {len(lessons)}")
+    logging.debug(f"Number of courses retrieved: {len(courses)}")
+    logging.debug(f"Is user authenticated: {current_user.is_authenticated}")
+    
+    if current_user.is_authenticated:
+        logging.debug(f"Current user ID: {current_user.id}")
+        logging.debug(f"Current user is admin: {current_user.is_admin}")
+    
     return render_template('list_lessons.html', lessons=lessons, courses=course_dict)
