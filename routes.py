@@ -79,17 +79,6 @@ def create_course():
                 instructor_id=current_user.id
             )
             db.session.add(new_course)
-            db.session.flush()
-
-            for lesson_form in form.lessons:
-                new_lesson = Lesson(
-                    title=lesson_form.title.data,
-                    content=lesson_form.content.data,
-                    order=lesson_form.order.data,
-                    course_id=new_course.id
-                )
-                db.session.add(new_lesson)
-
             db.session.commit()
             logging.debug(f"Course created: {new_course}")
             flash('Course created successfully!', 'success')
