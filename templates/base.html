@@ -17,6 +17,7 @@
                     <li><a href="{{ url_for('home') }}">Home</a></li>
                     <li><a href="{{ url_for('about') }}">About</a></li>
                     <li><a href="{{ url_for('list_courses') }}">Courses</a></li>
+                    <li><a href="{{ url_for('list_lessons') }}">Lessons</a></li>
                     {% if current_user.is_authenticated %}
                         <li><a href="{{ url_for('create_course') }}">Create Course</a></li>
                         <li><a href="{{ url_for('list_templates') }}">Course Templates</a></li>

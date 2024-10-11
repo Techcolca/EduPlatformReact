@@ -312,3 +312,10 @@ def delete_lesson(course_id, lesson_id):
         logging.error(f"Error deleting lesson: {str(e)}")
         flash('An error occurred while deleting the lesson. Please try again.', 'error')
     return redirect(url_for('course_details', course_id=course.id))
+
+@app.route('/lessons')
+def list_lessons():
+    lessons = Lesson.query.order_by(Lesson.course_id, Lesson.order).all()
+    courses = Course.query.all()
+    course_dict = {course.id: course for course in courses}
+    return render_template('list_lessons.html', lessons=lessons, courses=course_dict)

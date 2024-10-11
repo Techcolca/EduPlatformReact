@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}All Lessons - Educational Platform{% endblock %}
+
+{% block content %}
+    <h1>All Lessons</h1>
+    {% if lessons %}
+        <ul>
+        {% for lesson in lessons %}
+            <li>
+                <strong>{{ lesson.title }}</strong> 
+                (Course: <a href="{{ url_for('course_details', course_id=lesson.course_id) }}">{{ courses[lesson.course_id].title }}</a>)
+                - Order: {{ lesson.order }}
+                <a href="{{ url_for('lesson_details', course_id=lesson.course_id, lesson_id=lesson.id) }}">View Lesson</a>
+                {% if current_user.is_authenticated and (current_user.id == courses[lesson.course_id].instructor_id or current_user.is_admin) %}
+                    | <a href="{{ url_for('edit_lesson', course_id=lesson.course_id, lesson_id=lesson.id) }}">Edit</a>
+                {% endif %}
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No lessons available at the moment.</p>
+    {% endif %}
+{% endblock %}
