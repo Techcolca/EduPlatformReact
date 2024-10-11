@@ -1,43 +1,42 @@
-import logging
 from flask import render_template, redirect, url_for, flash, request
-from flask_login import login_user, logout_user, login_required, current_user
+from flask_login import login_user, login_required, logout_user, current_user
+from werkzeug.security import check_password_hash
 from app import app, db
 from models import User, Course, Lesson
 from forms import TeacherRegistrationForm, LoginForm, CourseCreationForm, CourseUpdateForm, CourseApprovalForm
+
+@app.route('/')
+def home():
+    courses = Course.query.filter_by(is_approved=True).all()
+    return render_template('home.html', courses=courses)
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/courses')
+def list_courses():
+    courses = Course.query.all()
+    return render_template('list_courses.html', courses=courses)
 
 @app.route('/create_course', methods=['GET', 'POST'])
 @login_required
 def create_course():
     form = CourseCreationForm()
     if form.validate_on_submit():
-        try:
-            logging.debug(f"Attempting to create new course with data: {form.data}")
-            new_course = Course(
-                title=form.title.data,
-                description=form.description.data,
-                level=form.level.data,
-                prerequisites=form.prerequisites.data,
-                learning_outcomes=form.learning_outcomes.data,
-                is_template=form.is_template.data,
-                instructor_id=current_user.id
-            )
-            logging.debug(f"New course object created: {new_course}")
-            db.session.add(new_course)
-            logging.debug("New course added to session")
-            db.session.commit()
-            logging.debug(f"Course committed to database: {new_course}")
-            flash('Course created successfully!', 'success')
-            return redirect(url_for('course_details', course_id=new_course.id))
-        except Exception as e:
-            db.session.rollback()
-            logging.error(f"Error creating new course: {str(e)}", exc_info=True)
-            flash('An error occurred while creating the course. Please try again.', 'error')
-    else:
-        for field, errors in form.errors.items():
-            for error in errors:
-                flash(f"Error in {field}: {error}", 'error')
-                logging.error(f"Form validation error in {field}: {error}")
-
+        new_course = Course(
+            title=form.title.data,
+            description=form.description.data,
+            level=form.level.data,
+            prerequisites=form.prerequisites.data,
+            learning_outcomes=form.learning_outcomes.data,
+            is_template=form.is_template.data,
+            instructor_id=current_user.id
+        )
+        db.session.add(new_course)
+        db.session.commit()
+        flash('Course created successfully!', 'success')
+        return redirect(url_for('course_details', course_id=new_course.id))
     return render_template('create_course.html', form=form)
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -47,8 +46,9 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        if user and user.check_password(form.password.data):
+        if user and check_password_hash(user.password_hash, form.password.data):
             login_user(user)
+            flash('Logged in successfully.', 'success')
             next_page = request.args.get('next')
             return redirect(next_page or url_for('home'))
         else:
@@ -59,20 +59,8 @@ def login():
 @login_required
 def logout():
     logout_user()
+    flash('Logged out successfully.', 'success')
     return redirect(url_for('home'))
-
-@app.route('/')
-def home():
-    return render_template('home.html')
-
-@app.route('/about')
-def about():
-    return render_template('about.html')
-
-@app.route('/courses')
-def list_courses():
-    courses = Course.query.all()
-    return render_template('list_courses.html', courses=courses)
 
 @app.route('/course/<int:course_id>')
 def course_details(course_id):
@@ -95,6 +83,19 @@ def edit_course(course_id):
         return redirect(url_for('course_details', course_id=course_id))
     
     return render_template('edit_course.html', form=form, course=course)
+
+@app.route('/course/<int:course_id>/delete', methods=['POST'])
+@login_required
+def delete_course(course_id):
+    course = Course.query.get_or_404(course_id)
+    if course.instructor_id != current_user.id and not current_user.is_admin:
+        flash('You do not have permission to delete this course.', 'error')
+        return redirect(url_for('course_details', course_id=course_id))
+    
+    db.session.delete(course)
+    db.session.commit()
+    flash('Course deleted successfully!', 'success')
+    return redirect(url_for('list_courses'))
 
 @app.route('/lessons')
 def list_lessons():
