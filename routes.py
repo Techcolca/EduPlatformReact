@@ -325,4 +325,4 @@ def list_lessons():
         logging.debug(f"Current user ID: {current_user.id}")
         logging.debug(f"Current user is admin: {current_user.is_admin}")
     
-    return render_template('list_lessons.html', lessons=lessons, courses=course_dict)
+    return render_template('list_lessons.html', lessons=lessons, courses=course_dict, courses_exist=bool(courses))
