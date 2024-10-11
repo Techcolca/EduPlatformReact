@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 from app import app, db
 from models import User, Course, Lesson
-from forms import TeacherRegistrationForm, LoginForm, CourseCreationForm, CourseUpdateForm, CourseApprovalForm
+from forms import TeacherRegistrationForm, LoginForm, CourseCreationForm, CourseUpdateForm, CourseApprovalForm, LessonForm
 import logging
 
 @app.route('/')
@@ -238,3 +238,77 @@ def create_from_template(template_id):
             logging.error(f"Error creating course from template: {str(e)}")
             flash('An error occurred. Please try again.')
     return render_template('create_from_template.html', form=form, template=template)
+
+@app.route('/course/<int:course_id>/lesson/create', methods=['GET', 'POST'])
+@login_required
+def create_lesson(course_id):
+    course = Course.query.get_or_404(course_id)
+    if course.instructor_id != current_user.id and not current_user.is_admin:
+        abort(403)
+    form = LessonForm()
+    if form.validate_on_submit():
+        new_lesson = Lesson(
+            title=form.title.data,
+            content=form.content.data,
+            order=form.order.data,
+            course_id=course.id
+        )
+        db.session.add(new_lesson)
+        try:
+            db.session.commit()
+            flash('Lesson created successfully!', 'success')
+            return redirect(url_for('course_details', course_id=course.id))
+        except Exception as e:
+            db.session.rollback()
+            logging.error(f"Error creating new lesson: {str(e)}")
+            flash('An error occurred while creating the lesson. Please try again.', 'error')
+    return render_template('create_lesson.html', form=form, course=course)
+
+@app.route('/course/<int:course_id>/lesson/<int:lesson_id>')
+def lesson_details(course_id, lesson_id):
+    course = Course.query.get_or_404(course_id)
+    lesson = Lesson.query.get_or_404(lesson_id)
+    if lesson.course_id != course.id:
+        abort(404)
+    return render_template('lesson_details.html', course=course, lesson=lesson)
+
+@app.route('/course/<int:course_id>/lesson/<int:lesson_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_lesson(course_id, lesson_id):
+    course = Course.query.get_or_404(course_id)
+    lesson = Lesson.query.get_or_404(lesson_id)
+    if course.instructor_id != current_user.id and not current_user.is_admin:
+        abort(403)
+    if lesson.course_id != course.id:
+        abort(404)
+    form = LessonForm(obj=lesson)
+    if form.validate_on_submit():
+        form.populate_obj(lesson)
+        try:
+            db.session.commit()
+            flash('Lesson updated successfully!', 'success')
+            return redirect(url_for('lesson_details', course_id=course.id, lesson_id=lesson.id))
+        except Exception as e:
+            db.session.rollback()
+            logging.error(f"Error updating lesson: {str(e)}")
+            flash('An error occurred while updating the lesson. Please try again.', 'error')
+    return render_template('edit_lesson.html', form=form, course=course, lesson=lesson)
+
+@app.route('/course/<int:course_id>/lesson/<int:lesson_id>/delete', methods=['POST'])
+@login_required
+def delete_lesson(course_id, lesson_id):
+    course = Course.query.get_or_404(course_id)
+    lesson = Lesson.query.get_or_404(lesson_id)
+    if course.instructor_id != current_user.id and not current_user.is_admin:
+        abort(403)
+    if lesson.course_id != course.id:
+        abort(404)
+    try:
+        db.session.delete(lesson)
+        db.session.commit()
+        flash('Lesson deleted successfully!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Error deleting lesson: {str(e)}")
+        flash('An error occurred while deleting the lesson. Please try again.', 'error')
+    return redirect(url_for('course_details', course_id=course.id))

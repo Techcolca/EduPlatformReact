@@ -72,51 +72,23 @@
                 </ul>
             {% endif %}
         </div>
-        <h2>Lessons</h2>
-        <div id="lessons">
-            {% for lesson_form in form.lessons %}
-                <div class="lesson-form">
-                    <h3>Lesson {{ loop.index }}</h3>
-                    {% if lesson_form.id.data %}
-                        <input type="hidden" name="lessons-{{ loop.index0 }}-id" value="{{ lesson_form.id.data }}">
-                    {% endif %}
-                    {{ lesson_form.title.label }}
-                    {{ lesson_form.title(class="form-control") }}
-                    {{ lesson_form.content.label }}
-                    {{ lesson_form.content(class="form-control") }}
-                    {{ lesson_form.order.label }}
-                    {{ lesson_form.order(class="form-control") }}
-                </div>
-            {% endfor %}
-        </div>
-        <button type="button" id="add-lesson">Add Lesson</button>
         <div>
-            <input type="submit" value="Update Course" class="btn btn-primary">
+            {{ form.lessons.label }}
+            {{ form.lessons(class="form-control dropdown") }}
+            {% if form.lessons.errors %}
+                <ul class="errors">
+                    {% for error in form.lessons.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
         </div>
+        <button type="submit" value="Update Course" class="btn btn-primary">Update Course</button>
     </form>
 {% endblock %}
 
 {% block scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const addLessonButton = document.getElementById('add-lesson');
-    const lessonsContainer = document.getElementById('lessons');
-
-    addLessonButton.addEventListener('click', function() {
-        const lessonCount = lessonsContainer.children.length;
-        const newLesson = document.createElement('div');
-        newLesson.className = 'lesson-form';
-        newLesson.innerHTML = `
-            <h3>Lesson ${lessonCount + 1}</h3>
-            <label for="lessons-${lessonCount}-title">Lesson Title</label>
-            <input class="form-control" id="lessons-${lessonCount}-title" name="lessons-${lessonCount}-title" required type="text" value="">
-            <label for="lessons-${lessonCount}-content">Lesson Content</label>
-            <textarea class="form-control" id="lessons-${lessonCount}-content" name="lessons-${lessonCount}-content" required></textarea>
-            <label for="lessons-${lessonCount}-order">Lesson Order</label>
-            <input class="form-control" id="lessons-${lessonCount}-order" name="lessons-${lessonCount}-order" required type="text" value="${lessonCount + 1}">
-        `;
-        lessonsContainer.appendChild(newLesson);
-    });
-});
+// Custom scripts can be added here if needed
 </script>
 {% endblock %}

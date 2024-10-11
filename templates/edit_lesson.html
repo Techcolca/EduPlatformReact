@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Lesson - Educational Platform{% endblock %}
+
+{% block content %}
+    <h1>Edit Lesson for {{ course.title }}</h1>
+    <form method="POST" action="{{ url_for('edit_lesson', course_id=course.id, lesson_id=lesson.id) }}">
+        {{ form.csrf_token }}
+        <div>
+            {{ form.title.label }}
+            {{ form.title(class="form-control") }}
+            {% if form.title.errors %}
+                <ul class="errors">
+                    {% for error in form.title.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        <div>
+            {{ form.content.label }}
+            {{ form.content(class="form-control") }}
+            {% if form.content.errors %}
+                <ul class="errors">
+                    {% for error in form.content.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        <div>
+            {{ form.order.label }}
+            {{ form.order(class="form-control") }}
+            {% if form.order.errors %}
+                <ul class="errors">
+                    {% for error in form.order.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        <div>
+            <input type="submit" value="Update Lesson" class="btn btn-primary">
+        </div>
+    </form>
+{% endblock %}

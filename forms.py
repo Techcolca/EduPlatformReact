@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, BooleanField, PasswordField, FieldList, FormField
+from wtforms import StringField, TextAreaField, BooleanField, PasswordField, SelectField
 from wtforms.validators import DataRequired, Length, Optional, Email
 
 class TeacherRegistrationForm(FlaskForm):
@@ -25,7 +25,7 @@ class CourseCreationForm(FlaskForm):
     prerequisites = TextAreaField('Prerequisites', validators=[Optional()])
     learning_outcomes = TextAreaField('Learning Outcomes', validators=[DataRequired()])
     is_template = BooleanField('Is Template')
-    lessons = FieldList(FormField(LessonForm), min_entries=1)
+    lessons = SelectField('Lessons', choices=[], validate_choice=False)
 
 class CourseUpdateForm(FlaskForm):
     title = StringField('Course Title', validators=[DataRequired(), Length(max=120)])
@@ -34,7 +34,7 @@ class CourseUpdateForm(FlaskForm):
     prerequisites = TextAreaField('Prerequisites', validators=[Optional()])
     learning_outcomes = TextAreaField('Learning Outcomes', validators=[DataRequired()])
     is_template = BooleanField('Is Template')
-    lessons = FieldList(FormField(LessonForm), min_entries=1)
+    lessons = SelectField('Lessons', choices=[], validate_choice=False)
 
 class CourseApprovalForm(FlaskForm):
     is_approved = BooleanField('Approve Course')
