@@ -79,6 +79,23 @@ def course_details(course_id):
     course = Course.query.get_or_404(course_id)
     return render_template('course_details.html', course=course)
 
+@app.route('/course/<int:course_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_course(course_id):
+    course = Course.query.get_or_404(course_id)
+    if course.instructor_id != current_user.id and not current_user.is_admin:
+        flash('You do not have permission to edit this course.', 'error')
+        return redirect(url_for('course_details', course_id=course_id))
+    
+    form = CourseUpdateForm(obj=course)
+    if form.validate_on_submit():
+        form.populate_obj(course)
+        db.session.commit()
+        flash('Course updated successfully!', 'success')
+        return redirect(url_for('course_details', course_id=course_id))
+    
+    return render_template('edit_course.html', form=form, course=course)
+
 @app.route('/lessons')
 def list_lessons():
     lessons = Lesson.query.all()

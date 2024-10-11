@@ -7,7 +7,6 @@
     <p><strong>Level:</strong> {{ course.level }}</p>
     <p><strong>Description:</strong> {{ course.description }}</p>
     <p><strong>Prerequisites:</strong> {{ course.prerequisites }}</p>
-    <p><strong>Lessons:</strong> {{ course.lessons }}</p>
     <p><strong>Learning Outcomes:</strong> {{ course.learning_outcomes }}</p>
     <p><strong>Instructor:</strong> {{ course.instructor.username }}</p>
     
@@ -20,5 +19,16 @@
     
     {% if current_user.is_authenticated and current_user.is_admin and not course.is_approved %}
         <a href="{{ url_for('approve_course', course_id=course.id) }}">Approve Course</a>
+    {% endif %}
+
+    <h2>Lessons</h2>
+    {% if course.lessons %}
+        <ul>
+        {% for lesson in course.lessons %}
+            <li>{{ lesson.title }} - Order: {{ lesson.order }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No lessons available for this course yet.</p>
     {% endif %}
 {% endblock %}
