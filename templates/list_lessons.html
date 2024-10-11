@@ -4,9 +4,6 @@
 
 {% block content %}
     <h1>All Lessons</h1>
-    {% if current_user.is_authenticated %}
-        <a href="{{ url_for('create_lesson') }}" class="btn btn-primary">Create New Lesson</a>
-    {% endif %}
     {% if lessons %}
         <ul>
         {% for lesson in lessons %}
