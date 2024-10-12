@@ -7,7 +7,7 @@ from flask_login import LoginManager
 from flask_migrate import Migrate
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 class Base(DeclarativeBase):
     pass
@@ -42,8 +42,8 @@ def load_user(user_id):
     from models import User
     return User.query.get(int(user_id))
 
-def create_test_user():
-    from models import User
+def create_test_data():
+    from models import User, Course, Lesson
     from werkzeug.security import generate_password_hash
     
     test_user = User.query.filter_by(email='test@example.com').first()
@@ -56,18 +56,42 @@ def create_test_user():
             preferred_subjects='Unit Tests'
         )
         db.session.add(test_user)
-        try:
-            db.session.commit()
-            logging.debug(f"Test user created: {test_user}")
-        except Exception as e:
-            db.session.rollback()
-            logging.error(f"Error creating test user: {str(e)}")
+        db.session.commit()
+        logging.info(f"Test user created: {test_user}")
+
+    test_course = Course.query.filter_by(title='Sample Course').first()
+    if not test_course:
+        test_course = Course(
+            title='Sample Course',
+            description='This is a sample course for testing purposes.',
+            level='Beginner',
+            prerequisites='None',
+            learning_outcomes='Understanding of sample courses',
+            is_template=False,
+            is_approved=True,
+            instructor_id=test_user.id
+        )
+        db.session.add(test_course)
+        db.session.commit()
+        logging.info(f"Test course created: {test_course}")
+
+    test_lesson = Lesson.query.filter_by(title='Sample Lesson').first()
+    if not test_lesson:
+        test_lesson = Lesson(
+            title='Sample Lesson',
+            content='This is the content of the sample lesson.',
+            order=1,
+            course_id=test_course.id
+        )
+        db.session.add(test_lesson)
+        db.session.commit()
+        logging.info(f"Test lesson created: {test_lesson}")
 
 with app.app_context():
     # Import models and create tables
     import models
     db.create_all()
-    create_test_user()
+    create_test_data()
 
 # Import and register routes
 from routes import register, login, logout, home, about, list_courses, course_details, list_lessons, create_course
