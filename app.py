@@ -88,9 +88,9 @@ def create_test_data():
         logging.info(f"Test lesson created: {test_lesson}")
 
 with app.app_context():
-    # Import models and create tables
+    # Import models
     import models
-    db.create_all()
+    # Create test data
     create_test_data()
 
 # Import and register routes
