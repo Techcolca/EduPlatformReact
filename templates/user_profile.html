@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">User Profile</h1>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">{{ user.username }}</h5>
+            <p class="card-text">Email: {{ user.email }}</p>
+            <p class="card-text">Role: {% if user.is_teacher %}Teacher{% else %}Student{% endif %}</p>
+        </div>
+    </div>
+    
+    {% if user.is_teacher %}
+    <h2 class="mt-4 mb-3">Your Courses</h2>
+    <div class="row">
+        {% for course in user.courses %}
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ course.title }}</h5>
+                    <p class="card-text">{{ course.description[:100] }}...</p>
+                    <a href="{{ url_for('course_detail', course_id=course.id) }}" class="btn btn-primary">View Course</a>
+                    <a href="{{ url_for('edit_course', course_id=course.id) }}" class="btn btn-secondary">Edit Course</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

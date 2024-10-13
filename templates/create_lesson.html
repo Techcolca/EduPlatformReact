@@ -1,46 +1,29 @@
 {% extends "base.html" %}
 
-{% block title %}Create Lesson - Educational Platform{% endblock %}
-
 {% block content %}
-    <h1>Create a New Lesson for {{ course.title }}</h1>
-    <form method="POST" action="{{ url_for('create_lesson', course_id=course.id) }}">
-        {{ form.csrf_token }}
-        <div>
-            {{ form.title.label }}
-            {{ form.title(class="form-control") }}
-            {% if form.title.errors %}
-                <ul class="errors">
-                    {% for error in form.title.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        </div>
-        <div>
-            {{ form.content.label }}
-            {{ form.content(class="form-control") }}
-            {% if form.content.errors %}
-                <ul class="errors">
-                    {% for error in form.content.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        </div>
-        <div>
-            {{ form.order.label }}
-            {{ form.order(class="form-control") }}
-            {% if form.order.errors %}
-                <ul class="errors">
-                    {% for error in form.order.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        </div>
-        <div>
-            <input type="submit" value="Create Lesson" class="btn btn-primary">
-        </div>
-    </form>
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h1 class="mb-4">Create a New Lesson for {{ course.title }}</h1>
+        <form method="POST" action="{{ url_for('create_lesson', course_id=course.id) }}">
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+                {{ form.title.label(class="form-label") }}
+                {{ form.title(class="form-control") }}
+                {% for error in form.title.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                {{ form.content.label(class="form-label") }}
+                {{ form.content(class="form-control", rows=5) }}
+                {% for error in form.content.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                {{ form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}

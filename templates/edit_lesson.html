@@ -1,46 +1,21 @@
 {% extends "base.html" %}
 
-{% block title %}Edit Lesson - Educational Platform{% endblock %}
-
 {% block content %}
-    <h1>Edit Lesson for {{ course.title }}</h1>
-    <form method="POST" action="{{ url_for('edit_lesson', course_id=course.id, lesson_id=lesson.id) }}">
-        {{ form.csrf_token }}
-        <div>
-            {{ form.title.label }}
+<div class="container">
+    <h1 class="mb-4">Edit Lesson</h1>
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            {{ form.title.label(class="form-label") }}
             {{ form.title(class="form-control") }}
-            {% if form.title.errors %}
-                <ul class="errors">
-                    {% for error in form.title.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
         </div>
-        <div>
-            {{ form.content.label }}
-            {{ form.content(class="form-control") }}
-            {% if form.content.errors %}
-                <ul class="errors">
-                    {% for error in form.content.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
+        <div class="mb-3">
+            {{ form.content.label(class="form-label") }}
+            {{ form.content(class="form-control", rows=10) }}
         </div>
-        <div>
-            {{ form.order.label }}
-            {{ form.order(class="form-control") }}
-            {% if form.order.errors %}
-                <ul class="errors">
-                    {% for error in form.order.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        </div>
-        <div>
-            <input type="submit" value="Update Lesson" class="btn btn-primary">
+        <div class="mb-3">
+            {{ form.submit(class="btn btn-primary") }}
         </div>
     </form>
+</div>
 {% endblock %}

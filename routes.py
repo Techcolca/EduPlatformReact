@@ -1,12 +1,8 @@
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_user, login_required, logout_user, current_user
-from app import app, db, login_manager
+from app import app, db
 from models import User, Course, Lesson, Quiz, Question
 from forms import RegistrationForm, LoginForm, CourseForm, LessonForm, QuizForm
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
 
 @app.route('/')
 def index():
@@ -115,3 +111,53 @@ def take_quiz(quiz_id):
         percentage = (score / total_questions) * 100
         return render_template('quiz_results.html', score=score, total=total_questions, percentage=percentage)
     return render_template('take_quiz.html', title='Take Quiz', quiz=quiz)
+
+# New routes
+
+@app.route('/profile')
+@login_required
+def user_profile():
+    return render_template('user_profile.html', title='User Profile', user=current_user)
+
+@app.route('/course/<int:course_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_course(course_id):
+    course = Course.query.get_or_404(course_id)
+    if course.teacher != current_user:
+        flash('You can only edit your own courses.', 'warning')
+        return redirect(url_for('course_detail', course_id=course.id))
+    form = CourseForm()
+    if form.validate_on_submit():
+        course.title = form.title.data
+        course.description = form.description.data
+        db.session.commit()
+        flash('Your course has been updated!', 'success')
+        return redirect(url_for('course_detail', course_id=course.id))
+    elif request.method == 'GET':
+        form.title.data = course.title
+        form.description.data = course.description
+    return render_template('edit_course.html', title='Edit Course', form=form, course=course)
+
+@app.route('/lesson/<int:lesson_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_lesson(lesson_id):
+    lesson = Lesson.query.get_or_404(lesson_id)
+    if lesson.course.teacher != current_user:
+        flash('You can only edit lessons in your own courses.', 'warning')
+        return redirect(url_for('course_detail', course_id=lesson.course.id))
+    form = LessonForm()
+    if form.validate_on_submit():
+        lesson.title = form.title.data
+        lesson.content = form.content.data
+        db.session.commit()
+        flash('Your lesson has been updated!', 'success')
+        return redirect(url_for('course_detail', course_id=lesson.course.id))
+    elif request.method == 'GET':
+        form.title.data = lesson.title
+        form.content.data = lesson.content
+    return render_template('edit_lesson.html', title='Edit Lesson', form=form, lesson=lesson)
+
+@app.route('/courses')
+def list_courses():
+    courses = Course.query.all()
+    return render_template('courses.html', title='All Courses', courses=courses)

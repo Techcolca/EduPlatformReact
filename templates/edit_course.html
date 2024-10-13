@@ -1,123 +1,21 @@
 {% extends "base.html" %}
 
-{% block title %}Edit Course - Educational Platform{% endblock %}
-
 {% block content %}
-    <h1>Edit Course</h1>
-    <form method="POST" action="{{ url_for('edit_course', course_id=course.id) }}">
-        {{ form.csrf_token }}
-        <div>
-            {{ form.title.label }}
+<div class="container">
+    <h1 class="mb-4">Edit Course</h1>
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            {{ form.title.label(class="form-label") }}
             {{ form.title(class="form-control") }}
-            {% if form.title.errors %}
-                <ul class="errors">
-                    {% for error in form.title.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
         </div>
-        <div>
-            {{ form.description.label }}
-            {{ form.description(class="form-control") }}
-            {% if form.description.errors %}
-                <ul class="errors">
-                    {% for error in form.description.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
+        <div class="mb-3">
+            {{ form.description.label(class="form-label") }}
+            {{ form.description(class="form-control", rows=5) }}
         </div>
-        <div>
-            {{ form.level.label }}
-            {{ form.level(class="form-control") }}
-            {% if form.level.errors %}
-                <ul class="errors">
-                    {% for error in form.level.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
+        <div class="mb-3">
+            {{ form.submit(class="btn btn-primary") }}
         </div>
-        <div>
-            {{ form.prerequisites.label }}
-            {{ form.prerequisites(class="form-control") }}
-            {% if form.prerequisites.errors %}
-                <ul class="errors">
-                    {% for error in form.prerequisites.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        </div>
-        <div>
-            {{ form.learning_outcomes.label }}
-            {{ form.learning_outcomes(class="form-control") }}
-            {% if form.learning_outcomes.errors %}
-                <ul class="errors">
-                    {% for error in form.learning_outcomes.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        </div>
-        <div>
-            {{ form.is_template.label }}
-            {{ form.is_template() }}
-            {% if form.is_template.errors %}
-                <ul class="errors">
-                    {% for error in form.is_template.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        </div>
-        <h3>Lessons</h3>
-        {% for lesson_form in form.lessons %}
-            <div class="lesson-form">
-                <h4>Lesson {{ loop.index }}</h4>
-                {{ lesson_form.hidden_tag() }}
-                <div>
-                    {{ lesson_form.title.label }}
-                    {{ lesson_form.title(class="form-control") }}
-                    {% if lesson_form.title.errors %}
-                        <ul class="errors">
-                            {% for error in lesson_form.title.errors %}
-                                <li>{{ error }}</li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-                </div>
-                <div>
-                    {{ lesson_form.content.label }}
-                    {{ lesson_form.content(class="form-control") }}
-                    {% if lesson_form.content.errors %}
-                        <ul class="errors">
-                            {% for error in lesson_form.content.errors %}
-                                <li>{{ error }}</li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-                </div>
-                <div>
-                    {{ lesson_form.order.label }}
-                    {{ lesson_form.order(class="form-control") }}
-                    {% if lesson_form.order.errors %}
-                        <ul class="errors">
-                            {% for error in lesson_form.order.errors %}
-                                <li>{{ error }}</li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-                </div>
-            </div>
-        {% endfor %}
-        <button type="submit" value="Update Course" class="btn btn-primary">Update Course</button>
     </form>
-{% endblock %}
-
-{% block scripts %}
-<script>
-// Custom scripts can be added here if needed
-</script>
+</div>
 {% endblock %}
