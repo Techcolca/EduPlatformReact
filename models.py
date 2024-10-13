@@ -20,6 +20,7 @@ class Course(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
+    image_filename = db.Column(db.String(255))
     teacher_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     teacher = db.relationship('User', backref=db.backref('courses', lazy=True))
     lessons = db.relationship('Lesson', backref='course', lazy=True, cascade='all, delete-orphan')
@@ -28,6 +29,8 @@ class Lesson(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     content = db.Column(db.Text, nullable=False)
+    video_link = db.Column(db.String(255))
+    file_attachment_filename = db.Column(db.String(255))
     course_id = db.Column(db.Integer, db.ForeignKey('course.id'), nullable=False)
     quiz = db.relationship('Quiz', backref='lesson', lazy=True, uselist=False, cascade='all, delete-orphan')
 

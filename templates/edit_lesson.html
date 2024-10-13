@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container">
     <h1 class="mb-4">Edit Lesson</h1>
-    <form method="POST" action="">
+    <form method="POST" action="{{ url_for('edit_lesson', lesson_id=lesson.id) }}" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
         <div class="mb-3">
             {{ form.title.label(class="form-label") }}
@@ -14,7 +14,19 @@
             {{ form.content(class="form-control", rows=10) }}
         </div>
         <div class="mb-3">
+            {{ form.video_link.label(class="form-label") }}
+            {{ form.video_link(class="form-control") }}
+        </div>
+        <div class="mb-3">
+            {{ form.file_attachment.label(class="form-label") }}
+            {{ form.file_attachment(class="form-control") }}
+            {% if lesson.file_attachment_filename %}
+            <p class="mt-2">Current file: {{ lesson.file_attachment_filename }}</p>
+            {% endif %}
+        </div>
+        <div class="mb-3">
             {{ form.submit(class="btn btn-primary") }}
+            <a href="{{ url_for('course_detail', course_id=lesson.course.id) }}" class="btn btn-secondary">Cancel</a>
         </div>
     </form>
 </div>

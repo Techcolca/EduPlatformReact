@@ -73,11 +73,15 @@ args = "Start Flask App"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
+<<<<<<< HEAD
 args = "Create and Apply Migration"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
 args = "Create Initial Migration"
+=======
+args = "Check Course Schema"
+>>>>>>> desarrollo
 
 [[workflows.workflow]]
 name = "Flask Server"
@@ -158,7 +162,7 @@ agentRequireRestartOnSave = false
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "flask db migrate -m 'Create Lessons table and establish relationship with Courses'"
+args = "flask db migrate -m 'Add image_filename to course table'"
 
 [[workflows.workflow]]
 name = "Apply Migration"
@@ -180,7 +184,7 @@ agentRequireRestartOnSave = false
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "sqlite3 instance/educational_platform.db '.tables' && sqlite3 instance/educational_platform.db '.schema user' && sqlite3 instance/educational_platform.db '.schema course' && sqlite3 instance/educational_platform.db '.schema lesson'"
+args = "sqlite3 instance/educational_platform.db '.schema course'"
 
 [[workflows.workflow]]
 name = "Recreate Database"
@@ -254,7 +258,11 @@ args = "python main.py"
 waitForPort = 5000
 
 [[workflows.workflow]]
+<<<<<<< HEAD
 name = "Create and Apply Migration"
+=======
+name = "Check Course Schema"
+>>>>>>> desarrollo
 author = "agent"
 
 [workflows.workflow.metadata]
@@ -262,6 +270,7 @@ agentRequireRestartOnSave = false
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
+<<<<<<< HEAD
 args = "flask db migrate -m 'Add is_admin field to User model' && flask db upgrade"
 
 [[workflows.workflow]]
@@ -274,6 +283,9 @@ agentRequireRestartOnSave = false
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "flask db migrate -m 'Initial migration'"
+=======
+args = "sqlite3 instance/educational_platform.db '.schema course'"
+>>>>>>> desarrollo
 
 [deployment]
 run = ["sh", "-c", "python main.py"]

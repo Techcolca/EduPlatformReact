@@ -1,29 +1,29 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-8 offset-md-2">
-        <h1 class="mb-4">Create a New Lesson for {{ course.title }}</h1>
-        <form method="POST" action="{{ url_for('create_lesson', course_id=course.id) }}">
-            {{ form.hidden_tag() }}
-            <div class="mb-3">
-                {{ form.title.label(class="form-label") }}
-                {{ form.title(class="form-control") }}
-                {% for error in form.title.errors %}
-                    <span class="text-danger">{{ error }}</span>
-                {% endfor %}
-            </div>
-            <div class="mb-3">
-                {{ form.content.label(class="form-label") }}
-                {{ form.content(class="form-control", rows=5) }}
-                {% for error in form.content.errors %}
-                    <span class="text-danger">{{ error }}</span>
-                {% endfor %}
-            </div>
-            <div class="mb-3">
-                {{ form.submit(class="btn btn-primary") }}
-            </div>
-        </form>
-    </div>
+<div class="container">
+    <h1 class="mb-4">Create a New Lesson for {{ course.title }}</h1>
+    <form method="POST" action="{{ url_for('create_lesson', course_id=course.id) }}" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            {{ form.title.label(class="form-label") }}
+            {{ form.title(class="form-control") }}
+        </div>
+        <div class="mb-3">
+            {{ form.content.label(class="form-label") }}
+            {{ form.content(class="form-control", rows=5) }}
+        </div>
+        <div class="mb-3">
+            {{ form.video_link.label(class="form-label") }}
+            {{ form.video_link(class="form-control") }}
+        </div>
+        <div class="mb-3">
+            {{ form.file_attachment.label(class="form-label") }}
+            {{ form.file_attachment(class="form-control") }}
+        </div>
+        <div class="mb-3">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
 </div>
 {% endblock %}
