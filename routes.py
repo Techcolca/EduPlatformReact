@@ -3,6 +3,7 @@ from flask_login import login_user, login_required, logout_user, current_user
 from app import app, db
 from models import User, Course, Lesson, Quiz, Question
 from forms import RegistrationForm, LoginForm, CourseForm, LessonForm, QuizForm
+from sqlalchemy.exc import SQLAlchemyError
 
 @app.route('/')
 def index():
@@ -164,7 +165,12 @@ def delete_course(course_id):
     course = Course.query.get_or_404(course_id)
     if course.teacher != current_user:
         abort(403)  # Forbidden
-    db.session.delete(course)
-    db.session.commit()
-    flash('Your course has been deleted!', 'success')
+    try:
+        db.session.delete(course)
+        db.session.commit()
+        flash('Your course has been deleted!', 'success')
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        app.logger.error(f"Error deleting course: {str(e)}")
+        flash('An error occurred while deleting the course. Please try again.', 'danger')
     return redirect(url_for('index'))

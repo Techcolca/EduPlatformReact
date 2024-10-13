@@ -21,19 +21,19 @@ class Course(db.Model):
     description = db.Column(db.Text, nullable=False)
     teacher_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     teacher = db.relationship('User', backref=db.backref('courses', lazy=True))
-    lessons = db.relationship('Lesson', backref='course', lazy=True)
+    lessons = db.relationship('Lesson', backref='course', lazy=True, cascade='all, delete-orphan')
 
 class Lesson(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     content = db.Column(db.Text, nullable=False)
     course_id = db.Column(db.Integer, db.ForeignKey('course.id'), nullable=False)
-    quiz = db.relationship('Quiz', backref='lesson', lazy=True, uselist=False)
+    quiz = db.relationship('Quiz', backref='lesson', lazy=True, uselist=False, cascade='all, delete-orphan')
 
 class Quiz(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     lesson_id = db.Column(db.Integer, db.ForeignKey('lesson.id'), nullable=False)
-    questions = db.relationship('Question', backref='quiz', lazy=True)
+    questions = db.relationship('Question', backref='quiz', lazy=True, cascade='all, delete-orphan')
 
 class Question(db.Model):
     id = db.Column(db.Integer, primary_key=True)
