@@ -4,6 +4,7 @@ from app import app, db
 from models import User, Course, Lesson, Quiz, Question
 from forms import RegistrationForm, LoginForm, CourseForm, LessonForm, QuizForm
 from sqlalchemy.exc import SQLAlchemyError
+import logging
 
 @app.route('/')
 def index():
@@ -129,9 +130,14 @@ def edit_course(course_id):
     form = CourseForm(obj=course)
     if form.validate_on_submit():
         form.populate_obj(course)
-        db.session.commit()
-        flash('Your course has been updated!', 'success')
-        return redirect(url_for('course_detail', course_id=course.id))
+        try:
+            db.session.commit()
+            flash('Your course has been updated!', 'success')
+            return redirect(url_for('course_detail', course_id=course.id))
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            app.logger.error(f"Error updating course: {str(e)}")
+            flash('An error occurred while updating the course. Please try again.', 'danger')
     
     return render_template('edit_course.html', title='Edit Course', form=form, course=course)
 
