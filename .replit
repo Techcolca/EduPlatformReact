@@ -154,7 +154,7 @@ agentRequireRestartOnSave = false
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "flask db migrate -m 'Create Lessons table and establish relationship with Courses'"
+args = "flask db migrate -m 'Add image_filename to course table'"
 
 [[workflows.workflow]]
 name = "Apply Migration"
@@ -176,7 +176,7 @@ agentRequireRestartOnSave = false
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "sqlite3 instance/educational_platform.db '.tables' && sqlite3 instance/educational_platform.db '.schema user' && sqlite3 instance/educational_platform.db '.schema course' && sqlite3 instance/educational_platform.db '.schema lesson'"
+args = "sqlite3 instance/educational_platform.db '.schema course'"
 
 [[workflows.workflow]]
 name = "Recreate Database"
