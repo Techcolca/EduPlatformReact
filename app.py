@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from sqlalchemy.orm import DeclarativeBase
+from flask_uploads import UploadSet, IMAGES, configure_uploads
 
 class Base(DeclarativeBase):
     pass
@@ -19,6 +20,11 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
     "pool_pre_ping": True,
 }
+
+# Configure Flask-Uploads
+app.config['UPLOADED_IMAGES_DEST'] = os.path.join(app.root_path, 'static/uploads')
+images = UploadSet('images', IMAGES)
+configure_uploads(app, images)
 
 db.init_app(app)
 login_manager.init_app(app)

@@ -1,10 +1,11 @@
 from flask import render_template, redirect, url_for, flash, request, abort
 from flask_login import login_user, login_required, logout_user, current_user
-from app import app, db
+from app import app, db, images
 from models import User, Course, Lesson, Quiz, Question
 from forms import RegistrationForm, LoginForm, CourseForm, LessonForm, QuizForm
 from sqlalchemy.exc import SQLAlchemyError
 import logging
+import os
 
 @app.route('/')
 def index():
@@ -59,11 +60,42 @@ def create_course():
     form = CourseForm()
     if form.validate_on_submit():
         course = Course(title=form.title.data, description=form.description.data, teacher=current_user)
+        if form.image.data:
+            image_filename = images.save(form.image.data)
+            course.image_filename = image_filename
         db.session.add(course)
         db.session.commit()
         flash('Your course has been created!', 'success')
         return redirect(url_for('index'))
     return render_template('create_course.html', title='Create Course', form=form)
+
+@app.route('/course/<int:course_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_course(course_id):
+    course = Course.query.get_or_404(course_id)
+    if course.teacher != current_user:
+        flash('You can only edit your own courses.', 'warning')
+        return redirect(url_for('course_detail', course_id=course.id))
+    
+    form = CourseForm(obj=course)
+    if form.validate_on_submit():
+        course.title = form.title.data
+        course.description = form.description.data
+        if form.image.data:
+            if course.image_filename:
+                os.remove(os.path.join(app.config['UPLOADED_IMAGES_DEST'], course.image_filename))
+            image_filename = images.save(form.image.data)
+            course.image_filename = image_filename
+        try:
+            db.session.commit()
+            flash('Your course has been updated!', 'success')
+            return redirect(url_for('course_detail', course_id=course.id))
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            app.logger.error(f"Error updating course: {str(e)}")
+            flash('An error occurred while updating the course. Please try again.', 'danger')
+    
+    return render_template('edit_course.html', title='Edit Course', form=form, course=course)
 
 @app.route('/course/<int:course_id>/create_lesson', methods=['GET', 'POST'])
 @login_required
@@ -74,12 +106,37 @@ def create_lesson(course_id):
         return redirect(url_for('course_detail', course_id=course.id))
     form = LessonForm()
     if form.validate_on_submit():
-        lesson = Lesson(title=form.title.data, content=form.content.data, course=course)
+        lesson = Lesson(title=form.title.data, content=form.content.data, course=course, video_link=form.video_link.data)
+        if form.file_attachment.data:
+            file_filename = images.save(form.file_attachment.data)
+            lesson.file_attachment_filename = file_filename
         db.session.add(lesson)
         db.session.commit()
         flash('Your lesson has been created!', 'success')
         return redirect(url_for('course_detail', course_id=course.id))
     return render_template('create_lesson.html', title='Create Lesson', form=form, course=course)
+
+@app.route('/lesson/<int:lesson_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_lesson(lesson_id):
+    lesson = Lesson.query.get_or_404(lesson_id)
+    if lesson.course.teacher != current_user:
+        flash('You can only edit lessons in your own courses.', 'warning')
+        return redirect(url_for('course_detail', course_id=lesson.course.id))
+    form = LessonForm(obj=lesson)
+    if form.validate_on_submit():
+        lesson.title = form.title.data
+        lesson.content = form.content.data
+        lesson.video_link = form.video_link.data
+        if form.file_attachment.data:
+            if lesson.file_attachment_filename:
+                os.remove(os.path.join(app.config['UPLOADED_IMAGES_DEST'], lesson.file_attachment_filename))
+            file_filename = images.save(form.file_attachment.data)
+            lesson.file_attachment_filename = file_filename
+        db.session.commit()
+        flash('Your lesson has been updated!', 'success')
+        return redirect(url_for('course_detail', course_id=lesson.course.id))
+    return render_template('edit_lesson.html', title='Edit Lesson', form=form, lesson=lesson)
 
 @app.route('/lesson/<int:lesson_id>/create_quiz', methods=['GET', 'POST'])
 @login_required
@@ -118,47 +175,6 @@ def take_quiz(quiz_id):
 @login_required
 def user_profile():
     return render_template('user_profile.html', title='User Profile', user=current_user)
-
-@app.route('/course/<int:course_id>/edit', methods=['GET', 'POST'])
-@login_required
-def edit_course(course_id):
-    course = Course.query.get_or_404(course_id)
-    if course.teacher != current_user:
-        flash('You can only edit your own courses.', 'warning')
-        return redirect(url_for('course_detail', course_id=course.id))
-    
-    form = CourseForm(obj=course)
-    if form.validate_on_submit():
-        form.populate_obj(course)
-        try:
-            db.session.commit()
-            flash('Your course has been updated!', 'success')
-            return redirect(url_for('course_detail', course_id=course.id))
-        except SQLAlchemyError as e:
-            db.session.rollback()
-            app.logger.error(f"Error updating course: {str(e)}")
-            flash('An error occurred while updating the course. Please try again.', 'danger')
-    
-    return render_template('edit_course.html', title='Edit Course', form=form, course=course)
-
-@app.route('/lesson/<int:lesson_id>/edit', methods=['GET', 'POST'])
-@login_required
-def edit_lesson(lesson_id):
-    lesson = Lesson.query.get_or_404(lesson_id)
-    if lesson.course.teacher != current_user:
-        flash('You can only edit lessons in your own courses.', 'warning')
-        return redirect(url_for('course_detail', course_id=lesson.course.id))
-    form = LessonForm()
-    if form.validate_on_submit():
-        lesson.title = form.title.data
-        lesson.content = form.content.data
-        db.session.commit()
-        flash('Your lesson has been updated!', 'success')
-        return redirect(url_for('course_detail', course_id=lesson.course.id))
-    elif request.method == 'GET':
-        form.title.data = lesson.title
-        form.content.data = lesson.content
-    return render_template('edit_lesson.html', title='Edit Lesson', form=form, lesson=lesson)
 
 @app.route('/courses')
 def list_courses():

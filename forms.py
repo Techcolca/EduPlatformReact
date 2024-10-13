@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, PasswordField, BooleanField, TextAreaField, SubmitField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, URL, Optional
 
@@ -19,15 +20,14 @@ class LoginForm(FlaskForm):
 class CourseForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired(), Length(max=100)])
     description = TextAreaField('Description', validators=[DataRequired()])
-    image_url = StringField('Image URL', validators=[Optional(), URL()])
+    image = FileField('Course Image', validators=[FileAllowed(['jpg', 'png'], 'Images only!')])
     submit = SubmitField('Save Course')
 
 class LessonForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired(), Length(max=100)])
     content = TextAreaField('Content', validators=[DataRequired()])
-    image_url = StringField('Image URL', validators=[Optional(), URL()])
     video_link = StringField('Video Link', validators=[Optional(), URL()])
-    file_attachment_url = StringField('File Attachment URL', validators=[Optional(), URL()])
+    file_attachment = FileField('File Attachment', validators=[Optional(), FileAllowed(['pdf', 'doc', 'docx'], 'Documents only!')])
     submit = SubmitField('Save Lesson')
 
 class QuizForm(FlaskForm):

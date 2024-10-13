@@ -3,28 +3,22 @@
 {% block content %}
 <div class="container">
     <h1 class="mb-4">Edit Course: {{ course.title }}</h1>
-    <form method="POST" action="{{ url_for('edit_course', course_id=course.id) }}">
+    <form method="POST" action="{{ url_for('edit_course', course_id=course.id) }}" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
         <div class="mb-3">
             {{ form.title.label(class="form-label") }}
             {{ form.title(class="form-control") }}
-            {% for error in form.title.errors %}
-                <span class="text-danger">{{ error }}</span>
-            {% endfor %}
         </div>
         <div class="mb-3">
             {{ form.description.label(class="form-label") }}
             {{ form.description(class="form-control", rows=5) }}
-            {% for error in form.description.errors %}
-                <span class="text-danger">{{ error }}</span>
-            {% endfor %}
         </div>
         <div class="mb-3">
-            {{ form.image_url.label(class="form-label") }}
-            {{ form.image_url(class="form-control") }}
-            {% for error in form.image_url.errors %}
-                <span class="text-danger">{{ error }}</span>
-            {% endfor %}
+            {{ form.image.label(class="form-label") }}
+            {{ form.image(class="form-control") }}
+            {% if course.image_filename %}
+            <p class="mt-2">Current image: {{ course.image_filename }}</p>
+            {% endif %}
         </div>
         <div class="mb-3">
             {{ form.submit(class="btn btn-primary") }}
