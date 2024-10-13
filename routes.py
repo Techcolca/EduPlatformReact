@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, abort
 from flask_login import login_user, login_required, logout_user, current_user
 from app import app, db
 from models import User, Course, Lesson, Quiz, Question
@@ -157,3 +157,14 @@ def edit_lesson(lesson_id):
 def list_courses():
     courses = Course.query.all()
     return render_template('courses.html', title='All Courses', courses=courses)
+
+@app.route('/course/<int:course_id>/delete', methods=['POST'])
+@login_required
+def delete_course(course_id):
+    course = Course.query.get_or_404(course_id)
+    if course.teacher != current_user:
+        abort(403)  # Forbidden
+    db.session.delete(course)
+    db.session.commit()
+    flash('Your course has been deleted!', 'success')
+    return redirect(url_for('index'))
