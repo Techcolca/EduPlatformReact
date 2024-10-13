@@ -94,7 +94,7 @@ with app.app_context():
     create_test_data()
 
 # Import and register routes
-from routes import register, login, logout, home, about, list_courses, course_details, list_lessons, create_course
+from routes import create_lesson
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
