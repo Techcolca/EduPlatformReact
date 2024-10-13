@@ -2,17 +2,12 @@ from app import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
-class User(db.Model, UserMixin):
+class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(100), unique=True, nullable=False)
+    username = db.Column(db.String(64), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
-    areas_of_expertise = db.Column(db.Text, nullable=True)
-    preferred_subjects = db.Column(db.Text, nullable=True)
-    is_admin = db.Column(db.Boolean, default=False, nullable=False)
-
-    def __repr__(self):
-        return f'<User {self.username}>'
+    is_teacher = db.Column(db.Boolean, default=False)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -22,27 +17,26 @@ class User(db.Model, UserMixin):
 
 class Course(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(120), nullable=False)
+    title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
-    level = db.Column(db.String(50), nullable=False)
-    prerequisites = db.Column(db.Text, nullable=True)
-    learning_outcomes = db.Column(db.Text, nullable=False)
-    is_template = db.Column(db.Boolean, default=False, nullable=False)
-    is_approved = db.Column(db.Boolean, default=False, nullable=False)
-    instructor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    instructor = db.relationship('User', backref=db.backref('courses', lazy=True))
-    lessons = db.relationship('Lesson', back_populates='course', cascade='all, delete-orphan')
-
-    def __repr__(self):
-        return f'<Course {self.title}>'
+    teacher_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    teacher = db.relationship('User', backref=db.backref('courses', lazy=True))
+    lessons = db.relationship('Lesson', backref='course', lazy=True)
 
 class Lesson(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(120), nullable=False)
+    title = db.Column(db.String(100), nullable=False)
     content = db.Column(db.Text, nullable=False)
-    order = db.Column(db.Integer, nullable=False)
     course_id = db.Column(db.Integer, db.ForeignKey('course.id'), nullable=False)
-    course = db.relationship('Course', back_populates='lessons')
+    quiz = db.relationship('Quiz', backref='lesson', lazy=True, uselist=False)
 
-    def __repr__(self):
-        return f'<Lesson {self.title}>'
+class Quiz(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    lesson_id = db.Column(db.Integer, db.ForeignKey('lesson.id'), nullable=False)
+    questions = db.relationship('Question', backref='quiz', lazy=True)
+
+class Question(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+    correct_answer = db.Column(db.String(255), nullable=False)
+    quiz_id = db.Column(db.Integer, db.ForeignKey('quiz.id'), nullable=False)

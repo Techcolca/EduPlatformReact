@@ -67,6 +67,10 @@ args = "Check and Apply Migrations"
 task = "workflow.run"
 args = "Verify Database Schema"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start Flask App"
+
 [[workflows.workflow]]
 name = "Flask Server"
 author = "agent"
@@ -228,6 +232,18 @@ sqlite3 instance/educational_platform.db '.tables' && echo '
 User table schema:' && sqlite3 instance/educational_platform.db '.schema user' && echo '
 Course table schema:' && sqlite3 instance/educational_platform.db '.schema course' && echo '
 Lesson table schema:' && sqlite3 instance/educational_platform.db '.schema lesson'"""
+
+[[workflows.workflow]]
+name = "Start Flask App"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python main.py"
+waitForPort = 5000
 
 [deployment]
 run = ["sh", "-c", "python main.py"]

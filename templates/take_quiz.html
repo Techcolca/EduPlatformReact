@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-4">Take Quiz</h1>
+<form method="POST" action="">
+    {% for question in quiz.questions %}
+    <div class="mb-4">
+        <h5>{{ question.content }}</h5>
+        <input type="text" name="question_{{ question.id }}" class="form-control" required>
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary">Submit Quiz</button>
+</form>
+{% endblock %}

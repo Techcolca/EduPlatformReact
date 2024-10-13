@@ -3,16 +3,16 @@
 {% block content %}
 <div class="row">
     <div class="col-md-8 offset-md-2">
-        <h1 class="mb-4">Create Course</h1>
+        <h1 class="mb-4">Create Quiz for {{ lesson.title }}</h1>
         <form method="POST" action="">
             {{ form.hidden_tag() }}
             <div class="mb-3">
-                {{ form.title.label(class="form-label") }}
-                {{ form.title(class="form-control") }}
+                {{ form.question.label(class="form-label") }}
+                {{ form.question(class="form-control", rows=3) }}
             </div>
             <div class="mb-3">
-                {{ form.description.label(class="form-label") }}
-                {{ form.description(class="form-control", rows=5) }}
+                {{ form.correct_answer.label(class="form-label") }}
+                {{ form.correct_answer(class="form-control") }}
             </div>
             <div class="mb-3">
                 {{ form.submit(class="btn btn-primary") }}

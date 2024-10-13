@@ -1,48 +1,117 @@
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_user, login_required, logout_user, current_user
-from app import app, db
-from models import User, Course, Lesson
-from forms import TeacherRegistrationForm, LoginForm, CourseCreationForm, CourseUpdateForm, CourseApprovalForm, LessonForm
-from werkzeug.security import generate_password_hash, check_password_hash
-import logging
+from app import app, db, login_manager
+from models import User, Course, Lesson, Quiz, Question
+from forms import RegistrationForm, LoginForm, CourseForm, LessonForm, QuizForm
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+@app.route('/')
+def index():
+    courses = Course.query.all()
+    return render_template('index.html', courses=courses)
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user = User(username=form.username.data, email=form.email.data, is_teacher=form.is_teacher.data)
+        user.set_password(form.password.data)
+        db.session.add(user)
+        db.session.commit()
+        flash('Your account has been created!', 'success')
+        return redirect(url_for('login'))
+    return render_template('register.html', title='Register', form=form)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user and user.check_password(form.password.data):
+            login_user(user, remember=form.remember.data)
+            next_page = request.args.get('next')
+            return redirect(next_page) if next_page else redirect(url_for('index'))
+        else:
+            flash('Login Unsuccessful. Please check email and password', 'danger')
+    return render_template('login.html', title='Login', form=form)
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+@app.route('/course/<int:course_id>')
+def course_detail(course_id):
+    course = Course.query.get_or_404(course_id)
+    return render_template('course_detail.html', title=course.title, course=course)
+
+@app.route('/create_course', methods=['GET', 'POST'])
+@login_required
+def create_course():
+    if not current_user.is_teacher:
+        flash('Only teachers can create courses.', 'warning')
+        return redirect(url_for('index'))
+    form = CourseForm()
+    if form.validate_on_submit():
+        course = Course(title=form.title.data, description=form.description.data, teacher=current_user)
+        db.session.add(course)
+        db.session.commit()
+        flash('Your course has been created!', 'success')
+        return redirect(url_for('index'))
+    return render_template('create_course.html', title='Create Course', form=form)
 
 @app.route('/course/<int:course_id>/create_lesson', methods=['GET', 'POST'])
 @login_required
 def create_lesson(course_id):
-    logging.info(f"Received course_id: {course_id}")
     course = Course.query.get_or_404(course_id)
-    logging.info(f"Retrieved course: {course}")
-    if course.instructor_id != current_user.id and not current_user.is_admin:
-        flash('You do not have permission to create lessons for this course.', 'error')
-        return redirect(url_for('course_details', course_id=course_id))
-
+    if course.teacher != current_user:
+        flash('You can only add lessons to your own courses.', 'warning')
+        return redirect(url_for('course_detail', course_id=course.id))
     form = LessonForm()
     if form.validate_on_submit():
-        logging.info(f"Form data: {form.data}")
-        try:
-            # Get the maximum order value for the current course
-            max_order = db.session.query(db.func.max(Lesson.order)).filter_by(course_id=course_id).scalar() or 0
-            new_order = max_order + 1
+        lesson = Lesson(title=form.title.data, content=form.content.data, course=course)
+        db.session.add(lesson)
+        db.session.commit()
+        flash('Your lesson has been created!', 'success')
+        return redirect(url_for('course_detail', course_id=course.id))
+    return render_template('create_lesson.html', title='Create Lesson', form=form, course=course)
 
-            new_lesson = Lesson(
-                title=form.title.data,
-                content=form.content.data,
-                order=new_order,
-                course=course
-            )
-            logging.info(f"New lesson object: {new_lesson}")
-            db.session.add(new_lesson)
-            db.session.commit()
-            flash('Lesson created successfully!', 'success')
-            return redirect(url_for('course_details', course_id=course_id))
-        except Exception as e:
-            logging.error(f"Error creating lesson: {str(e)}")
-            db.session.rollback()
-            flash('An error occurred while creating the lesson. Please try again.', 'error')
-    else:
-        logging.info(f"Form validation errors: {form.errors}")
-    return render_template('create_lesson.html', form=form, course=course)
-@app.route('/')
-def home():
-    return render_template('home.html')  # or redirect(url_for('login')) if you prefer
-# Add other route definitions here...
+@app.route('/lesson/<int:lesson_id>/create_quiz', methods=['GET', 'POST'])
+@login_required
+def create_quiz(lesson_id):
+    lesson = Lesson.query.get_or_404(lesson_id)
+    if lesson.course.teacher != current_user:
+        flash('You can only add quizzes to your own lessons.', 'warning')
+        return redirect(url_for('course_detail', course_id=lesson.course.id))
+    form = QuizForm()
+    if form.validate_on_submit():
+        quiz = Quiz(lesson=lesson)
+        db.session.add(quiz)
+        question = Question(content=form.question.data, correct_answer=form.correct_answer.data, quiz=quiz)
+        db.session.add(question)
+        db.session.commit()
+        flash('Your quiz question has been added!', 'success')
+        return redirect(url_for('course_detail', course_id=lesson.course.id))
+    return render_template('create_quiz.html', title='Create Quiz', form=form, lesson=lesson)
+
+@app.route('/quiz/<int:quiz_id>/take', methods=['GET', 'POST'])
+@login_required
+def take_quiz(quiz_id):
+    quiz = Quiz.query.get_or_404(quiz_id)
+    if request.method == 'POST':
+        score = 0
+        total_questions = len(quiz.questions)
+        for question in quiz.questions:
+            user_answer = request.form.get(f'question_{question.id}')
+            if user_answer and user_answer.lower() == question.correct_answer.lower():
+                score += 1
+        percentage = (score / total_questions) * 100
+        return render_template('quiz_results.html', score=score, total=total_questions, percentage=percentage)
+    return render_template('take_quiz.html', title='Take Quiz', quiz=quiz)
