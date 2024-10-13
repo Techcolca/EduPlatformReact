@@ -112,8 +112,6 @@ def take_quiz(quiz_id):
         return render_template('quiz_results.html', score=score, total=total_questions, percentage=percentage)
     return render_template('take_quiz.html', title='Take Quiz', quiz=quiz)
 
-# New routes
-
 @app.route('/profile')
 @login_required
 def user_profile():
@@ -126,16 +124,14 @@ def edit_course(course_id):
     if course.teacher != current_user:
         flash('You can only edit your own courses.', 'warning')
         return redirect(url_for('course_detail', course_id=course.id))
-    form = CourseForm()
+    
+    form = CourseForm(obj=course)
     if form.validate_on_submit():
-        course.title = form.title.data
-        course.description = form.description.data
+        form.populate_obj(course)
         db.session.commit()
         flash('Your course has been updated!', 'success')
         return redirect(url_for('course_detail', course_id=course.id))
-    elif request.method == 'GET':
-        form.title.data = course.title
-        form.description.data = course.description
+    
     return render_template('edit_course.html', title='Edit Course', form=form, course=course)
 
 @app.route('/lesson/<int:lesson_id>/edit', methods=['GET', 'POST'])
